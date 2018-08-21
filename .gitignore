@@ -1,0 +1,7 @@
+*.eps
+*.log
+*.root
+*.txt
+*.png
+*.pyc
+.ipynb_checkpoints/
