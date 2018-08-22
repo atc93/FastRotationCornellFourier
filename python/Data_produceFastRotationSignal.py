@@ -19,6 +19,7 @@ endFitTime      = int(sys.argv[8]) # in mico-sec
 printPlot       = int(sys.argv[9])
 saveROOT        = int(sys.argv[10])
 tag             = str(sys.argv[11])
+statFluc        = int(sys.argv[12])
 
 ## Retrieve and plot histogram from ROOT file
 
@@ -26,6 +27,11 @@ inFile      = r.TFile( inputRootFile)
 outFile     = r.TFile(outputRootFile,'RECREATE')
 
 signal  = inFile.Get( histoName )
+
+## Allow statistical fluctuaion
+
+if ( statFluc == 1 ):
+    signal = statFluctuation( signal )
 
 ## Styling and plotting
 
@@ -39,7 +45,7 @@ times = [1,10,50, 100, tM]
 
 if ( printPlot == 1 ):
     for time in times:
-        plot( c, signal, tag+'_Intensity', tS, tS+time )
+        plot( c, signal, tag+'/Intensity', tS, tS+time )
 
 ## Rebin, fit and plot wiggle plot
 
@@ -53,15 +59,15 @@ signal.Fit("fit","SREMQ")
 
 if ( printPlot == 1 ):
     for time in times:
-        plot( c, signal, tag + '_FittedWiggle', startFitTime, startFitTime+time )
-    plot( c, signal, tag + '_FittedWiggle', endFitTime-200, endFitTime )
-    plot( c, signal, tag + '_FittedWiggle', endFitTime-100, endFitTime )
+        plot( c, signal, tag + '/FittedWiggle', startFitTime, startFitTime+time )
+    plot( c, signal, tag + '/FittedWiggle', endFitTime-200, endFitTime )
+    plot( c, signal, tag + '/FittedWiggle', endFitTime-100, endFitTime )
 
 
 ## Produce finely binned and normalized wiggle plot to original intensity histogram
 
 nBins = fr.GetXaxis().GetNbins()
-norm = r.TH1D("norm","norm",nBins,0,tM)
+norm = r.TH1D("norm","norm",nBins,0, fr.GetBinCenter( nBins ) + 0.5*fr.GetBinWidth(1) )
 norm.SetLineColor(4)
 setHistogramStyle( norm, '', 'Time [#mus]', 'Intensity')
 
@@ -70,7 +76,7 @@ for i in range(nBins):
     
 if ( printPlot == 1 ):
     for time in times:
-        plot( c, norm, tag + '_WiggleFRS', tS, tS+time )
+        plot( c, norm, tag + '/WiggleFRS', tS, tS+time )
 
 norm.Write("wiggleHistogram")
 
@@ -84,7 +90,7 @@ fr.Write("fr")
 
 if ( printPlot == 1 ):
     for time in times:
-        plot( c, fr, tag+'_FRS', tS, tS+time )
+        plot( c, fr, tag+'/FRS', tS, tS+time )
 
 ## Close output ROOT file
 

@@ -102,7 +102,7 @@ pt2.Draw("same")
 
 c.Draw()
 if ( printPlot == 1 ):
-    c.Print('plots/eps/' + tag + '_Cosine_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+    c.Print('plots/eps/' + tag + '/Cosine_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
 innerLine = r.TLine(6662.799323395121, sineClone.GetMinimum(), 6662.799323395121, sineClone.GetMaximum())
 innerLine.SetLineWidth(3)
@@ -121,7 +121,7 @@ pt2.Draw("same")
 
 c.Draw()
 if ( printPlot == 1 ):
-        c.Print('plots/eps/' + tag + '_Sine_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+        c.Print('plots/eps/' + tag + '/Sine_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
 ## First Apprxomiation
 
@@ -173,7 +173,7 @@ pt2.Draw("same")
 c.Draw()    
 
 if ( printPlot == 1 ):
-    c.Print('plots/eps/' + tag + '_FirstApproximation_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+    c.Print('plots/eps/' + tag + '/FirstApproximation_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
 
 # # Delta Correction
@@ -245,7 +245,7 @@ pt.Draw("same")
 pt2.Draw("same")    
 c.Draw()    
 if ( printPlot == 1 ):
-    c.Print('plots/eps/' + tag + '_Parabola_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
+    c.Print('plots/eps/' + tag + '/Parabola_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
 
 
 # # Complete distribution
@@ -294,7 +294,7 @@ pt.Draw("same")
 pt2.Draw("same")    
 c.Draw()    
 if ( printPlot == 1 ):
-    c.Print('plots/eps/' + tag + '_CompleteDistribution_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
+    c.Print('plots/eps/' + tag + '/CompleteDistribution_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
 
 
 # # Conversion frequency -> radius
@@ -420,8 +420,8 @@ pt3.Draw("same")
 c.Draw()
 
 if ( printPlot == 1 ):
-    c.Print('plots/eps/' + tag + '_Radial_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
-    c.Print('plots/png/' + tag + '_Radial_t0_{0:.5f}_tS_{1}_tM_{2}.png'.format(t0, tS, tM))    
+    c.Print('plots/eps/' + tag + '/Radial_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
+    c.Print('plots/png/' + tag + '/Radial_t0_{0:.5f}_tS_{1}_tM_{2}.png'.format(t0, tS, tM))    
 
 
 #for x,y in zip(radius, intensity):

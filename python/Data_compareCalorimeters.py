@@ -62,3 +62,33 @@ avg_ce /= 24
 avg_xe /= 24
 avg_w /= 24
 print avg_ce, avg_xe, avg_w
+
+std = 0
+sum = 0
+for i in ce:
+    sum += 1
+    std += (i-avg_ce) * (i-avg_ce)
+std /= sum-1
+std = math.sqrt(std)
+
+print 'C_E = ', avg_ce, ' +- ', std
+
+std = 0
+sum = 0
+for i in xe:
+    sum += 1
+    std += (i-avg_xe) * (i-avg_xe)
+std /= sum-1
+std = math.sqrt(std)
+
+print 'x_e = ', avg_xe, ' +- ', std
+
+std = 0
+sum = 0
+for i in width:
+    sum += 1
+    std += (i-avg_w) * (i-avg_w)
+std /= sum-1
+std = math.sqrt(std)
+
+print 'width = ', avg_w, ' +- ', std

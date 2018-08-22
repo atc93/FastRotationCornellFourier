@@ -11,5 +11,6 @@
         endFitTime=500  # in mico-sec
          printPlot=1
           saveROOT=1
+          statFluc=1
 
-python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag -b
+python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag $statFluc -b

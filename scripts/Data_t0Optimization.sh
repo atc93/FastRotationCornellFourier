@@ -6,7 +6,7 @@
           lowert0=-330
           uppert0=-310
        t0StepSize=5
-         optLevel=1
+         optLevel=4
                tS=4
                tM=400
         printPlot=0
