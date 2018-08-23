@@ -27,8 +27,8 @@ python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $
 outputRootFile="root/60h_t0Opt_calo$i.root"
 outputTextFile="txt/60h_t0Opt_calo$i.txt"
      histoName="fr"
-       lowert0=-340
-       uppert0=-310
+     lowert0=$( expr -340 + "$i" '*' 6 - 6 )
+     uppert0=$( expr -310 + "$i" '*' 6 - 6 )     
     t0StepSize=2
       optLevel=4
             tS=4

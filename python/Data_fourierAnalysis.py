@@ -408,6 +408,10 @@ for i,j in zip(radius,intensity):
     
 msd /= sum
 
+xe -= 7112
+
+C_E_reco  = -2*beta*beta*fieldIndex*(1-fieldIndex)*msd/(7112*7112)*1e9
+
 #print std
 
 graph.Draw('APL')
@@ -417,6 +421,20 @@ magicLine.Draw("same")
 pt.Draw("same")
 pt2.Draw("same")
 pt3.Draw("same")
+
+pt4=r.TPaveText(7070, graphMax*0.75,7090, graphMax*0.95);
+pt4.AddText('x_{e} = ' + '{0:.1f}'.format(xe) + ' mm');
+pt4.AddText(' #sigma = ' + '{0:.1f}'.format(std) + ' mm');
+pt4.AddText('      C_{E} = ' + '{0:.1f}'.format(C_E_reco) + ' ppb ');
+pt4.SetShadowColor(0);
+pt4.SetBorderSize(1);
+pt4.SetFillColor(0);
+pt4.SetLineWidth(1);
+pt4.SetLineColor(1);
+pt4.SetTextAngle(90);
+
+pt4.Draw("same")
+
 c.Draw()
 
 if ( printPlot == 1 ):
@@ -429,12 +447,9 @@ if ( printPlot == 1 ):
 
 #print 'a = ', a
 #print 'b = ', b
-xe -= 7112
-
-C_E_reco  = -2*beta*beta*fieldIndex*(1-fieldIndex)*msd/(7112*7112)*1e9
 #print 'C_E reco  ', C_E_reco, ' ppb'
 
-text_file = open(str(outputTextFile), "a")
+text_file = open(str(outputTextFile), "w")
 text_file.write('t0 %f tS %f tM %f fieldIndex %f fom %f xe_reco %f std_reco %f C_E_reco %f \n' % 
         (t0, tS, tM, fieldIndex, fom, xe, std, C_E_reco) )
 text_file.close()

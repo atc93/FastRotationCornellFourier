@@ -18,7 +18,7 @@ rm -rf plots/png/$tag
 mkdir plots/eps/$tag
 mkdir plots/png/$tag
 
-python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag $statFluc -b
+#python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag $statFluc -b
 
  inputRootFile="root/FRS_60h.root"
 outputRootFile="root/60h_t0Opt.root"
@@ -30,10 +30,10 @@ outputTextFile="txt/60h_t0Opt.txt"
       optLevel=4
             tS=4
             tM=400
-     printPlot=0
+     printPlot=1
       saveROOT=1
 
-python python/Data_t0Optimization.py  $inputRootFile $outputRootFile $outputTextFile $histoName $lowert0 $uppert0 $t0StepSize $optLevel $tS $tM $printPlot $saveROOT $tag -b
+#python python/Data_t0Optimization.py  $inputRootFile $outputRootFile $outputTextFile $histoName $lowert0 $uppert0 $t0StepSize $optLevel $tS $tM $printPlot $saveROOT $tag -b
 
 while read -r line
 do

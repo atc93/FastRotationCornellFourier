@@ -21,6 +21,13 @@ saveROOT        = int(sys.argv[10])
 tag             = str(sys.argv[11])
 statFluc        = int(sys.argv[12])
 
+print ''
+print ' =================================='
+print ' == Produce Fast Rotation signal =='
+print ' =================================='
+print ''
+
+
 ## Retrieve and plot histogram from ROOT file
 
 inFile      = r.TFile( inputRootFile)
