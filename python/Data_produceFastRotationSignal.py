@@ -20,6 +20,7 @@ printPlot       = int(sys.argv[9])
 saveROOT        = int(sys.argv[10])
 tag             = str(sys.argv[11])
 statFluc        = int(sys.argv[12])
+dataType        = str(sys.argv[13])
 
 print ''
 print ' =================================='
@@ -35,10 +36,17 @@ outFile     = r.TFile(outputRootFile,'RECREATE')
 
 signal  = inFile.Get( histoName )
 
+## If MC, do nothing
+if ( dataType == "mc"):
+    outFile.cd()
+    signal.Write("fr")
+    print '  doing nothing because MC\n'
+    sys.exit(0)
+
 ## Allow statistical fluctuaion
 
 if ( statFluc == 1 ):
-    signal = statFluctuation( signal )
+    signal = statFluctuationPoisson( signal )
 
 ## Styling and plotting
 
@@ -59,10 +67,26 @@ if ( printPlot == 1 ):
 fr = signal.Clone()
 signal.Rebin(rebinFactor)
 
-fit = r.TF1("fit","[0]*exp(-x/[1])*(1+[2]*cos(2*TMath::Pi()*[3]*x+[4]))", startFitTime, endFitTime)
-fit.SetParameters(500000,64.4,0.4,0.227,1)
+#fit = r.TF1("fit","[0] * (1+exp(-x/[5])*(1+[6]*cos(2*TMath::Pi()*[7]*x+[8]))) * exp(-x/[1])*(1+[2]*cos(2*TMath::Pi()*[3]*x+[4]))", startFitTime, endFitTime)
+#fit.SetParameters( signal.GetBinContent( signal.FindBin(startFitTime) )*1.3, 64.4, 0.4, 0.227, 1, 150, 0.002, 0.370, 1)
+fit = r.TF1("fit","[0] * exp(-x/[1])*(1+[2]*cos(2*TMath::Pi()*[3]*x+[4]))", startFitTime, endFitTime)
+fit.SetParameters( signal.GetBinContent( signal.FindBin(startFitTime) )*1.3, 64.4, 0.4, 0.227)
+fit.SetParLimits(1, 64, 65)
+#fit.SetParLimits(5, 140, 160)
+#fit.SetParLimits(6, 0, 0.01)
+#fit.SetParLimits(7, 0.3, 0.4)
+#fit.SetParLimits(8, 0, 7)
 fit.SetNpx(10000)
 signal.Fit("fit","SREMQ")
+print 'N0', fit.GetParameter(0)
+print 'Tau_m', fit.GetParameter(1)
+print 'A', fit.GetParameter(2)
+print 'omega_a', fit.GetParameter(3)
+print 'Phi', fit.GetParameter(4)
+#print 'Tau_cbo', fit.GetParameter(5)
+#print 'A_cbo', fit.GetParameter(6)
+#print 'omega_cbo', fit.GetParameter(7)
+#print 'Phi_cbo', fit.GetParameter(8)
 
 if ( printPlot == 1 ):
     for time in times:

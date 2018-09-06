@@ -1,48 +1,76 @@
 #!/bin/bash
 
- inputRootFile="root/FastRotation_60h.root"
-outputRootFile="root/FRS_60h.root"
-     histoName="FastRotation/allCalosallBunches_intensitySpectrum"
-           tag="60h_allCalos_allBunches"
+          tag=$1
+inputRootFile=$2
+     dataType=$3
+
+echo ''
+date
+
+start=`date +%s`
+
+outputRootFile="root/FRS_${tag}.root"
+     histoName="allCalosallBunches_intensitySpectrum"
    rebinFactor=150
             tS=4   # in mico-sec
-            tM=500 # in mico-sec
+            tM=400 # in mico-sec
   startFitTime=30  # in mico-sec
-    endFitTime=500  # in mico-sec
+    endFitTime=400  # in mico-sec
      printPlot=1
       saveROOT=1
       statFluc=0
+
+if [ "$dataType" == "data" ]; then
+    histoName="allCalosallBunches_intensitySpectrum"
+else
+    histoName="h_frs"
+fi
 
 rm -rf plots/eps/$tag
 rm -rf plots/png/$tag
 mkdir plots/eps/$tag
 mkdir plots/png/$tag
 
-#python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag $statFluc -b
+python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag $statFluc $dataType -b
 
- inputRootFile="root/FRS_60h.root"
-outputRootFile="root/60h_t0Opt.root"
-outputTextFile="txt/60h_t0Opt.txt"
-     histoName="fr"
-       lowert0=-340
-       uppert0=-310
-    t0StepSize=2
-      optLevel=4
+# inputRootFile="root/FRS_${tag}.root"
+outputRootFile="root/${tag}_t0Opt.root"
+outputTextFile="txt/${tag}_t0Opt.txt"
+     histoName="h_frs"
+       lowert0=110
+       uppert0=110.8
+    t0StepSize=0.1
+      optLevel=1 # 1 or 2 (1 is coarser and 2 is finer)
             tS=4
             tM=400
      printPlot=1
       saveROOT=1
+       runSine=0
 
-#python python/Data_t0Optimization.py  $inputRootFile $outputRootFile $outputTextFile $histoName $lowert0 $uppert0 $t0StepSize $optLevel $tS $tM $printPlot $saveROOT $tag -b
+python python/t0Optimization.py  $inputRootFile $outputRootFile $outputTextFile $histoName $lowert0 $uppert0 $t0StepSize $optLevel $tS $tM $printPlot $saveROOT $tag $runSine -b
 
 while read -r line
 do
     t0=$line
 done < "$outputTextFile"
 
-outputRootFile="root/60h_fourierAnalysis.root"
-outputTextFile="txt/60h_fourierAnalysis.txt"
+outputRootFile="root/${tag}_fourierAnalysis.root"
+#outputTextFile="txt/{tag}_fourierAnalysis.txt"
+outputTextFile="txt/60h_dT_scan.txt"
     fieldIndex=0.108
      printPlot=1
+updateTextFile=1
+       runSine=0
 
-python python/Data_fourierAnalysis.py  $inputRootFile $outputRootFile $outputTextFile $histoName $t0 $tS $tM $fieldIndex $printPlot $saveROOT $tag -b
+python python/Data_fourierAnalysis.py  $inputRootFile $outputRootFile $outputTextFile $histoName $t0 $tS $tM $fieldIndex $printPlot $saveROOT $tag $updateTextFile $runSine -b
+
+echo ""
+date
+
+end=`date +%s`
+
+runtime=$((end-start))
+
+echo ""
+echo " ---> TIME ELAPSED: $runtime second(s)"
+echo ""

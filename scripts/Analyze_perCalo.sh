@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in {1..24}; do
+for i in {1..1}; do
 
  inputRootFile="root/FastRotation_60h.root"
 outputRootFile="root/FRS_60h_calo$i.root"
@@ -21,22 +21,23 @@ rm -rf plots/png/$tag
 mkdir plots/eps/$tag
 mkdir plots/png/$tag
 
-python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag $statFluc -b
+#python python/Data_produceFastRotationSignal.py $inputRootFile $outputRootFile $histoName $rebinFactor $tS $tM $startFitTime $endFitTime $printPlot $saveROOT $tag $statFluc -b
 
  inputRootFile="root/FRS_60h_calo$i.root"
 outputRootFile="root/60h_t0Opt_calo$i.root"
 outputTextFile="txt/60h_t0Opt_calo$i.txt"
      histoName="fr"
-     lowert0=$( expr -340 + "$i" '*' 6 - 6 )
-     uppert0=$( expr -310 + "$i" '*' 6 - 6 )     
-    t0StepSize=2
-      optLevel=4
+     lowert0=$( expr -330 + "$i" '*' 6 - 6 )
+     uppert0=$( expr -322 + "$i" '*' 6 - 6 )     
+    t0StepSize=1
+      optLevel=1 #4
             tS=4
             tM=400
-     printPlot=0
+     printPlot=1
       saveROOT=1
+       runSine=0
 
-python python/Data_t0Optimization.py  $inputRootFile $outputRootFile $outputTextFile $histoName $lowert0 $uppert0 $t0StepSize $optLevel $tS $tM $printPlot $saveROOT $tag -b
+python python/Data_t0Optimization.py  $inputRootFile $outputRootFile $outputTextFile $histoName $lowert0 $uppert0 $t0StepSize $optLevel $tS $tM $printPlot $saveROOT $tag $runSine -b
 
 while read -r line
 do
@@ -47,7 +48,9 @@ outputRootFile="root/60h_fourierAnalysis_calo$i.root"
 outputTextFile="txt/60h_fourierAnalysis_calo$i.txt"
     fieldIndex=0.108
      printPlot=1
+updateTextFile=0     
+       runSine=1
 
-python python/Data_fourierAnalysis.py  $inputRootFile $outputRootFile $outputTextFile $histoName $t0 $tS $tM $fieldIndex $printPlot $saveROOT $tag -b
+python python/Data_fourierAnalysis.py  $inputRootFile $outputRootFile $outputTextFile $histoName $t0 $tS $tM $fieldIndex $printPlot $saveROOT $tag $updateTextFile $runSine -b
 
 done

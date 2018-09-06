@@ -19,6 +19,9 @@ fieldIndex      = float(sys.argv[8])
 printPlot       = int(sys.argv[9])
 saveROOT        = int(sys.argv[10])
 tag             = str(sys.argv[11])
+updateTextFile  = int(sys.argv[12])
+runSine         = int(sys.argv[13])
+outputDistFile  = str(sys.argv[14])
 
 print ''
 print ' =============================='
@@ -39,8 +42,10 @@ setCanvasStyle( c )
 ## Retrieve and plot histogram from ROOT file
 
 inFile = r.TFile( inputRootFile )
-fr = inFile.Get('fr')
+fr = inFile.Get( histoName )
 setHistogramStyle( fr, '', 'Time [#mus]', 'Intensity [a.u.]')
+
+#fr.Scale(1/66666.);
 
 ## Real transform
 
@@ -58,25 +63,28 @@ for j in range(startBin, endBin):
 
 intensity, radius = array( 'd' ), array( 'd' )
 
-cosine  = r.TH1D("cosine",  "cosine",   150,6630,6780)
-sine    = r.TH1D("sin",     "sine",     150,6630,6780)
+cosine  = r.TH1D("cosine",  "cosine",   constants.nFreq, constants.lowerFreq, constants.upperFreq)
+sine    = r.TH1D("sin",     "sine",     constants.nFreq, constants.lowerFreq, constants.upperFreq)
 
 calc_cosine_dist(t0, cosine, binContent, binCenter)
-calc_sine_dist  (t0, sine, binContent, binCenter )
+if ( runSine == 1 ):
+    print 'run sine calculation'
+    calc_sine_dist  (t0, sine, binContent, binCenter )
 
 # Extract minimum of distributions for t0 optimization
-cosine.GetXaxis().SetRangeUser(6630, 6700)
+cosine.GetXaxis().SetRangeUser(constants.lowerFreq, 6700)
 minBin1 = cosine.GetMinimum()
-cosine.GetXaxis().SetRangeUser(6700, 6780)
+cosine.GetXaxis().SetRangeUser(6700, constants.upperFreq)
 minBin2 = cosine.GetMinimum()
-cosine.GetXaxis().SetRangeUser(6630, 6780)
+cosine.GetXaxis().SetRangeUser(constants.lowerFreq, constants.upperFreq)
 
 # Calculate F.O.M.
 fom = abs( minBin1-minBin2 )
 
 
 cosineClone = cosine.Clone()
-setHistogramStyle( cosineClone, 'Cosine transform (t0= {0:.1f} ns)'.format(t0*1000), 'Frequency [kHz]', 'Arbitrary' )
+#setHistogramStyle( cosineClone, 'Cosine transform (t_{0}' + '= {0:.1f} ns)'.format(t0*1000), 'Frequency [kHz]', 'Arbitrary' )
+setHistogramStyle( cosineClone, 'Cosine transform', 'Frequency [kHz]', 'Arbitrary' )
 cosineClone.SetMaximum( cosineClone.GetMaximum()*1.3 ) 
 cosineClone.SetMinimum( cosineClone.GetMinimum()*1.2 ) 
 
@@ -85,9 +93,9 @@ setHistogramStyle( sineClone, 'Sine transform (t0= {0:.1f} ns)'.format(t0*1000),
 sineClone.SetMaximum( sineClone.GetMaximum()*1.3 ) 
 sineClone.SetMinimum( sineClone.GetMinimum()*1.2 ) 
 
-innerLine = r.TLine(6662.799323395121, cosineClone.GetMinimum(), 6662.799323395121, cosineClone.GetMaximum())
+innerLine = r.TLine(constants.lowerCollimatorFreq, cosineClone.GetMinimum(), constants.lowerCollimatorFreq, cosineClone.GetMaximum())
 innerLine.SetLineWidth(3)
-outerLine = r.TLine(6747.651727400435, cosineClone.GetMinimum(), 6747.651727400435, cosineClone.GetMaximum())
+outerLine = r.TLine(constants.upperCollimatorFreq, cosineClone.GetMinimum(), constants.upperCollimatorFreq, cosineClone.GetMaximum())
 outerLine.SetLineWidth(3)    
 
 pt=r.TPaveText(6650,cosineClone.GetMaximum()*0.38,6674,cosineClone.GetMaximum()*0.52);
@@ -104,9 +112,9 @@ c.Draw()
 if ( printPlot == 1 ):
     c.Print('plots/eps/' + tag + '/Cosine_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
-innerLine = r.TLine(6662.799323395121, sineClone.GetMinimum(), 6662.799323395121, sineClone.GetMaximum())
+innerLine = r.TLine(constants.lowerCollimatorFreq, sineClone.GetMinimum(), constants.lowerCollimatorFreq, sineClone.GetMaximum())
 innerLine.SetLineWidth(3)
-outerLine = r.TLine(6747.651727400435, sineClone.GetMinimum(), 6747.651727400435, sineClone.GetMaximum())
+outerLine = r.TLine(constants.upperCollimatorFreq, sineClone.GetMinimum(), constants.upperCollimatorFreq, sineClone.GetMaximum())
 outerLine.SetLineWidth(3)
 
 pt=r.TPaveText(6650,    sineClone.GetMaximum()*0.38,    6674,   sineClone.GetMaximum()*0.52);
@@ -129,10 +137,10 @@ approx = cosine.Clone()
 
 maxBin = approx.GetMaximumBin()
 
-approx.GetXaxis().SetRangeUser(6630, 6700)
+approx.GetXaxis().SetRangeUser(constants.lowerFreq, 6700)
 minBin1 = approx.GetMinimumBin()
 
-approx.GetXaxis().SetRangeUser(6700, 6780)
+approx.GetXaxis().SetRangeUser(6700, constants.upperFreq)
 minBin2 = approx.GetMinimumBin()
 
 #print minBin1, freq.GetBinContent(minBin1), minBin2, freq.GetBinContent(minBin2)
@@ -142,10 +150,10 @@ minA =  (approx.GetBinContent(minBin1) + approx.GetBinContent(minBin2)) / 2
 for iBin in range(1, minBin1):
     approx.SetBinContent(iBin, 0)
     
-for iBin in range(minBin2+1, 151):
+for iBin in range(minBin2+1, constants.nFreq+1):
     approx.SetBinContent(iBin, 0)    
     
-approx.GetXaxis().SetRangeUser(6630, 6780)    
+approx.GetXaxis().SetRangeUser(constants.lowerFreq, constants.upperFreq)    
 
 for iBin in range(minBin1, minBin2+1):
     approx.AddBinContent(iBin, -1*minA)
@@ -156,9 +164,9 @@ setHistogramStyle( approxClone, 'First approximation', 'Frequency [kHz]', 'Arbit
 approxClone.SetMaximum( approxClone.GetMaximum()*1.3 ) 
 approxClone.SetMinimum( -0.5 ) 
     
-innerLine = r.TLine(6662.799323395121, approxClone.GetMinimum(), 6662.799323395121, approxClone.GetMaximum())
+innerLine = r.TLine(constants.lowerCollimatorFreq, approxClone.GetMinimum(), constants.lowerCollimatorFreq, approxClone.GetMaximum())
 innerLine.SetLineWidth(3)
-outerLine = r.TLine(6747.651727400435, approxClone.GetMinimum(), 6747.651727400435, approxClone.GetMaximum())
+outerLine = r.TLine(constants.upperCollimatorFreq, approxClone.GetMinimum(), constants.upperCollimatorFreq, approxClone.GetMaximum())
 outerLine.SetLineWidth(3)    
 
 pt=r.TPaveText(6650,approxClone.GetMaximum()*0.9,6674,approxClone.GetMaximum()*1);
@@ -204,8 +212,7 @@ c.Draw()
 
 # # Scaled parabola
 
-
-for iBin in range(1,151):
+for iBin in range(1, constants.nFreq+1):
     parabola.SetBinContent(iBin, -1*( a*parabola.GetBinContent(iBin)+b) )
     
     
@@ -214,9 +221,9 @@ setHistogramStyle( parabolaClone, 'Parabola', 'Frequency [kHz]', 'Arbitrary' )
 parabolaClone.SetMaximum( parabolaClone.GetMaximum()*1.15 ) 
 parabolaClone.SetMinimum( parabolaClone.GetMinimum()*0.85 ) 
     
-innerLine = r.TLine(6662.799323395121, parabolaClone.GetMinimum(), 6662.799323395121, parabolaClone.GetMaximum())
+innerLine = r.TLine(constants.lowerCollimatorFreq, parabolaClone.GetMinimum(), constants.lowerCollimatorFreq, parabolaClone.GetMaximum())
 innerLine.SetLineWidth(3)
-outerLine = r.TLine(6747.651727400435, parabolaClone.GetMinimum(), 6747.651727400435, parabolaClone.GetMaximum())
+outerLine = r.TLine(constants.upperCollimatorFreq, parabolaClone.GetMinimum(), constants.upperCollimatorFreq, parabolaClone.GetMaximum())
 outerLine.SetLineWidth(3)    
 
 pt=r.TPaveText(6650,parabolaClone.GetMaximum()*0.9,6674,parabolaClone.GetMaximum()*1);
@@ -254,7 +261,7 @@ if ( printPlot == 1 ):
 
 
 full = cosine.Clone()
-for iBin in range(1,151):
+for iBin in range(1,constants.nFreq+1):
     full.AddBinContent(iBin, parabola.GetBinContent(iBin) )
 full.SetTitle("Complete distribution")    
 
@@ -263,9 +270,9 @@ setHistogramStyle( fullClone, 'Complete distribution', 'Frequency [kHz]', 'Arbit
 fullClone.SetMaximum( fullClone.GetMaximum()*1.15 ) 
 fullClone.SetMinimum( -0.5 ) 
     
-innerLine = r.TLine(6662.799323395121, fullClone.GetMinimum(), 6662.799323395121, fullClone.GetMaximum())
+innerLine = r.TLine(constants.lowerCollimatorFreq, fullClone.GetMinimum(), constants.lowerCollimatorFreq, fullClone.GetMaximum())
 innerLine.SetLineWidth(3)
-outerLine = r.TLine(6747.651727400435, fullClone.GetMinimum(), 6747.651727400435, fullClone.GetMaximum())
+outerLine = r.TLine(constants.upperCollimatorFreq, fullClone.GetMinimum(), constants.upperCollimatorFreq, fullClone.GetMaximum())
 outerLine.SetLineWidth(3)    
 
 pt=r.TPaveText(6650,fullClone.GetMaximum()*0.9,6674,fullClone.GetMaximum()*1);
@@ -319,7 +326,7 @@ speed = beta * 299792458
 
 intensity, radius = array( 'd' ), array( 'd' )
 
-for i in range(1, 150):
+for i in range(1, constants.nFreq+1):
     radius.append( speed / (2*math.pi*full.GetBinCenter(i)) )
     intensity.append( full.GetBinContent(i))
 
@@ -328,7 +335,7 @@ xe = np.average(radius, axis=0, weights=intensity)
 maxI = np.amax(intensity)
 intensity = intensity/maxI
 
-graph = r.TGraph(149,radius,intensity)
+graph = r.TGraph(constants.nFreq,radius,intensity)
 graph.SetTitle('')
 graph.GetXaxis().SetTitle("Radius [mm]")
 graph.GetYaxis().SetTitle("Arbitrary unitS")
@@ -394,6 +401,8 @@ if ( saveROOT == 1 ):
 std = 0
 sum = 0
 for i,j in zip(radius,intensity):
+    if ( i < constants.lowerCollimatorRad or i > constants.upperCollimatorRad ):
+        continue
     sum += j
     std += (j) * (i-xe) * (i-xe)
 
@@ -403,6 +412,8 @@ std = math.sqrt(std)
 sum = 0
 msd = 0
 for i,j in zip(radius,intensity):
+    if ( i < constants.lowerCollimatorRad or i > constants.upperCollimatorRad ):
+        continue
     sum += j
     msd += (j) * (i-7112) * (i-7112 )
     
@@ -422,7 +433,7 @@ pt.Draw("same")
 pt2.Draw("same")
 pt3.Draw("same")
 
-pt4=r.TPaveText(7070, graphMax*0.75,7090, graphMax*0.95);
+pt4=r.TPaveText(7070, graphMax*0.7,7095, graphMax*0.96);
 pt4.AddText('x_{e} = ' + '{0:.1f}'.format(xe) + ' mm');
 pt4.AddText(' #sigma = ' + '{0:.1f}'.format(std) + ' mm');
 pt4.AddText('      C_{E} = ' + '{0:.1f}'.format(C_E_reco) + ' ppb ');
@@ -449,9 +460,16 @@ if ( printPlot == 1 ):
 #print 'b = ', b
 #print 'C_E reco  ', C_E_reco, ' ppb'
 
-text_file = open(str(outputTextFile), "w")
+if ( updateTextFile == 1 ):
+    text_file = open(str(outputTextFile), "a")
+    textFileDist = open(str(outputDistFile), "a")
+else:
+    text_file = open(str(outputTextFile), "w")
+
 text_file.write('t0 %f tS %f tM %f fieldIndex %f fom %f xe_reco %f std_reco %f C_E_reco %f \n' % 
         (t0, tS, tM, fieldIndex, fom, xe, std, C_E_reco) )
 text_file.close()
 
-# In[ ]:
+for i, j in zip(radius, intensity):
+    textFileDist.write('%f %f ' % (i, j) )
+textFileDist.write('\n')    

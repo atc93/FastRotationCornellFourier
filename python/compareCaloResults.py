@@ -8,6 +8,26 @@ fileList    = []
 histoList   = []
 colorList   = [600, 601, 602, 603, 604, 599, 632, 633, 634, 635, 636, 631, 416, 417, 418, 419, 420, 415, 616, 617, 618, 619, 620, 615]
 
+statCeMean = []
+statXeMean = []
+statWMean  = []
+statT0Mean = []
+statCeStd = []
+statXeStd = []
+statWStd  = []
+statT0Std = []
+
+for i in range (1, 25):
+    filename = 'txt/60h_calo'+ str(i) + '_statFluc.txt'
+    statCeMean.append( float(np.loadtxt(filename, usecols=7)) )
+    statCeStd.append( float(np.loadtxt(filename, usecols=8)) )
+    statXeMean.append( float(np.loadtxt(filename, usecols=1)) )
+    statXeStd.append( float(np.loadtxt(filename, usecols=2)) )
+    statWMean.append( float(np.loadtxt(filename, usecols=4)) )
+    statWStd.append( float(np.loadtxt(filename, usecols=5)) )
+    statT0Mean.append( float(np.loadtxt(filename, usecols=10)) )
+    statT0Std.append( float(np.loadtxt(filename, usecols=11)) )
+
 c = r.TCanvas('c','c',900,600)
 setCanvasStyle( c )
 
@@ -109,6 +129,21 @@ std_w = math.sqrt(std_w)
 
 print 'width = ', avg_w, ' +- ', std_w
 
+sum_weight = 0
+for i in range(0,24):
+    sum_weight += 1/statCeStd[i]
+
+weightedCe = 0;
+for i in range(0, 24):
+    weightedCe += 1/statCeStd[i] / sum_weight * statCeMean[i]
+
+weithedSigma = 0
+for i in range(0, 24):
+    weithedSigma += (1/statCeStd[i]) / (sum_weight) * statCeStd[i]
+
+
+print weightedCe, math.sqrt(weithedSigma)
+
 plt.figure(1)
 fit = np.polyfit(caloNum,t0,1)
 fit_fn = np.poly1d(fit) 
@@ -121,27 +156,33 @@ plt.savefig('plots/png/' + tag + '_t0_vs_caloNum.png', format='png')
 plt.close()
 
 plt.figure(2)
-plt.plot(caloNum, xe, 'rx')
+plt.errorbar(caloNum, statXeMean, yerr=statXeStd, fmt='o', label='pseudo-data', zorder=1)
+plt.plot(caloNum, xe, 'rx', label='data', zorder=2)
+plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Calo #')
-plt.suptitle('$\mathregular{<x_{e}>}=' + '{0:.1f}'.format(avg_xe) + '$ +- ' + '{0:.1f}'.format(std_xe) + ' mm')
+#plt.suptitle('$\mathregular{<x_{e}>}=' + '{0:.1f}'.format(avg_xe) + '$ +- ' + '{0:.1f}'.format(std_xe) + ' mm')
 plt.ylabel('$\mathregular{x_{e}}$ [mm]')
 plt.savefig('plots/eps/' + tag + '_xe_vs_caloNum.eps', format='eps')
 plt.savefig('plots/png/' + tag + '_xe_vs_caloNum.png', format='png')
 plt.close()
 
 plt.figure(3)
-plt.plot(caloNum, width, 'rx')
+plt.errorbar(caloNum, statWMean, yerr=statWStd, fmt='o', label='pseudo-data', zorder=1)
+plt.plot(caloNum, width, 'rx', label='data', zorder=2)
+plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Calo #')
-plt.suptitle('$\mathregular{<width>}=' + '{0:.1f}'.format(avg_w) + '$ +- ' + '{0:.1f}'.format(std_w) + ' mm')
+#plt.suptitle('$\mathregular{<width>}=' + '{0:.1f}'.format(avg_w) + '$ +- ' + '{0:.1f}'.format(std_w) + ' mm')
 plt.ylabel('Width [mm]')
 plt.savefig('plots/eps/' + tag + '_width_vs_caloNum.eps', format='eps')
 plt.savefig('plots/png/' + tag + '_width_vs_caloNum.png', format='png')
 plt.close()
 
 plt.figure(4)
-plt.plot(caloNum, ce, 'rx')
+plt.errorbar(caloNum, statCeMean, yerr=statCeStd, fmt='o', label='pseudo-data', zorder=1)
+plt.plot(caloNum, ce, 'rx', label='data', zorder=2)
+plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Calo #')
-plt.suptitle('$\mathregular{<C_{E}>}=' + '{0:.1f}'.format(avg_ce) + '$ +- ' + '{0:.1f}'.format(std_ce) + ' ppb')
+#plt.suptitle('$\mathregular{<C_{E}>}=' + '{0:.1f}'.format(avg_ce) + '$ +- ' + '{0:.1f}'.format(std_ce) + ' ppb')
 plt.ylabel('$\mathregular{C_{E}}$ [ppb]')
 plt.savefig('plots/eps/' + tag + '_ce_vs_caloNum.eps', format='eps')
 plt.savefig('plots/png/' + tag + '_ce_vs_caloNum.png', format='png')

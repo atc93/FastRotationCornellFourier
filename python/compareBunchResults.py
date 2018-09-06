@@ -8,6 +8,27 @@ fileList    = []
 histoList   = []
 colorList   = [1, 2, 4, 6, 7, 8, 9, 41]
 
+statCeMean = []
+statXeMean = []
+statWMean  = []
+statT0Mean = []
+statCeStd = []
+statXeStd = []
+statWStd  = []
+statT0Std = []
+
+for i in range (0, 8):
+    filename = 'txt/60h_bunch'+ str(i) + '_statFluc.txt'
+    statCeMean.append( float(np.loadtxt(filename, usecols=7)) )
+    statCeStd.append( float(np.loadtxt(filename, usecols=8)) )
+    statXeMean.append( float(np.loadtxt(filename, usecols=1)) )
+    statXeStd.append( float(np.loadtxt(filename, usecols=2)) )
+    statWMean.append( float(np.loadtxt(filename, usecols=4)) )
+    statWStd.append( float(np.loadtxt(filename, usecols=5)) )
+    statT0Mean.append( float(np.loadtxt(filename, usecols=10)) )
+    statT0Std.append( float(np.loadtxt(filename, usecols=11)) )
+
+
 c = r.TCanvas('c','c',900,600)
 setCanvasStyle( c )
 
@@ -110,6 +131,20 @@ std_w = math.sqrt(std_w)
 
 print 'width = ', avg_w, ' +- ', std_w
 
+sum_weight = 0
+for i in range(0,8):
+    sum_weight += 1/statCeStd[i]
+
+weightedCe = 0;
+for i in range(0, 8):
+    weightedCe += 1/statCeStd[i] / sum_weight * statCeMean[i]
+
+weithedSigma = 0
+for i in range(0, 8):
+    weithedSigma += (1/statCeStd[i]) / (sum_weight) * statCeStd[i]
+
+print weightedCe, math.sqrt(weithedSigma)
+
 plt.figure(1)
 fit = np.polyfit(bunchNum,t0,1)
 fit_fn = np.poly1d(fit) 
@@ -123,28 +158,34 @@ plt.savefig('plots/png/' + tag + '_t0_vs_bunchNum.png', format='png')
 plt.close()
 
 plt.figure(2)
-plt.plot(bunchNum, xe, 'rx')
+plt.errorbar(bunchNum, statXeMean, yerr=statXeStd, fmt='o', label='pseudo-data', zorder=1)
+plt.plot(bunchNum, xe, 'rx', label='data', zorder=2)
+plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Bunch #')
 plt.ylabel('$\mathregular{x_{e}}$ [mm]')
-plt.suptitle('$\mathregular{<x_{e}>}=' + '{0:.1f}'.format(avg_xe) + '$ +- ' + '{0:.1f}'.format(std_xe) + ' mm')
+#plt.suptitle('$\mathregular{<x_{e}>}=' + '{0:.1f}'.format(avg_xe) + '$ +- ' + '{0:.1f}'.format(std_xe) + ' mm')
 plt.savefig('plots/eps/' + tag + '_xe_vs_bunchNum.eps', format='eps')
 plt.savefig('plots/png/' + tag + '_xe_vs_bunchNum.png', format='png')
 plt.close()
 
 plt.figure(3)
-plt.plot(bunchNum, width, 'rx')
+plt.errorbar(bunchNum, statWMean, yerr=statWStd, fmt='o', label='pseudo-data', zorder=1)
+plt.plot(bunchNum, width, 'rx', label='data', zorder=2)
+plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Bunch #')
 plt.ylabel('Width [mm]')
-plt.suptitle('$\mathregular{<width>}=' + '{0:.1f}'.format(avg_w) + '$ +- ' + '{0:.1f}'.format(std_w) + ' mm')
+#plt.suptitle('$\mathregular{<width>}=' + '{0:.1f}'.format(avg_w) + '$ +- ' + '{0:.1f}'.format(std_w) + ' mm')
 plt.savefig('plots/eps/' + tag + '_width_vs_bunchNum.eps', format='eps')
 plt.savefig('plots/png/' + tag + '_width_vs_bunchNum.png', format='png')
 plt.close()
 
 plt.figure(4)
-plt.plot(bunchNum, ce, 'rx')
+plt.errorbar(bunchNum, statCeMean, yerr=statCeStd, fmt='o', label='pseudo-data', zorder=1)
+plt.plot(bunchNum, ce, 'rx', label='data', zorder=2)
+plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Bunch #')
 plt.ylabel('$\mathregular{C_{E}}$ [ppb]')
-plt.suptitle('$\mathregular{<C_{E}>}=' + '{0:.1f}'.format(avg_ce) + '$ +- ' + '{0:.1f}'.format(std_ce) + ' ppb')
+#plt.suptitle('$\mathregular{<C_{E}>}=' + '{0:.1f}'.format(avg_ce) + '$ +- ' + '{0:.1f}'.format(std_ce) + ' ppb')
 plt.savefig('plots/eps/' + tag + '_ce_vs_bunchNum.eps', format='eps')
 plt.savefig('plots/png/' + tag + '_ce_vs_bunchNum.png', format='png')
 plt.close()
