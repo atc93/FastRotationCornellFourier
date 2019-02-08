@@ -1,0 +1,19 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}Fast Rotation signal}{2}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Fourier analysis}{2}{subsection.1.2}
+\contentsline {section}{\numberline {2}Producing the Fast Rotation signal}{3}{section.2}
+\contentsline {section}{\numberline {3}\ensuremath {t_{0}}\ optimization}{3}{section.3}
+\contentsline {section}{\numberline {4}Frequency and radial distribution}{3}{section.4}
+\contentsline {section}{\numberline {5}E-field correction}{3}{section.5}
+\contentsline {section}{\numberline {6}Statistical uncertainty}{3}{section.6}
+\contentsline {section}{\numberline {7}Systematic uncertainty}{3}{section.7}
+\contentsline {subsection}{\numberline {7.1}\ensuremath {t_{0}}}{3}{subsection.7.1}
+\contentsline {subsection}{\numberline {7.2}\ensuremath {t_{S}}}{3}{subsection.7.2}
+\contentsline {subsection}{\numberline {7.3}\ensuremath {t_{M}}}{4}{subsection.7.3}
+\contentsline {subsection}{\numberline {7.4}Energy threshold}{4}{subsection.7.4}
+\contentsline {subsection}{\numberline {7.5}Calorimeters timing alignement}{4}{subsection.7.5}
+\contentsline {subsection}{\numberline {7.6}Field index}{4}{subsection.7.6}
+\contentsline {subsection}{\numberline {7.7}Frequency to radius conversion}{4}{subsection.7.7}
+\contentsline {subsection}{\numberline {7.8}Binning effect}{4}{subsection.7.8}
+\contentsline {subsection}{\numberline {7.9}E-field correction approximations}{4}{subsection.7.9}

@@ -1,0 +1,7 @@
+rm -f $1.aux
+rm -f $1.toc
+rm -f $1.pdf
+rm -f $1.log
+pdflatex $1.tex
+pdflatex $1.tex
+pdflatex $1.tex

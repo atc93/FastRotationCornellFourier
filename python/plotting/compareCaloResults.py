@@ -1,8 +1,8 @@
 from importAll import *
 
-tag='60h'
+tag='endGame'
 
-name = 'txt/' + tag + '_fourierAnalysis_perCalo.txt'
+name = 'txt/' + tag  + '_fourierAnalysis_perCalo.txt'
 
 fileList    = []
 histoList   = []
@@ -17,24 +17,13 @@ statXeStd = []
 statWStd  = []
 statT0Std = []
 
-for i in range (1, 25):
-    filename = 'txt/60h_calo'+ str(i) + '_statFluc.txt'
-    statCeMean.append( float(np.loadtxt(filename, usecols=7)) )
-    statCeStd.append( float(np.loadtxt(filename, usecols=8)) )
-    statXeMean.append( float(np.loadtxt(filename, usecols=1)) )
-    statXeStd.append( float(np.loadtxt(filename, usecols=2)) )
-    statWMean.append( float(np.loadtxt(filename, usecols=4)) )
-    statWStd.append( float(np.loadtxt(filename, usecols=5)) )
-    statT0Mean.append( float(np.loadtxt(filename, usecols=10)) )
-    statT0Std.append( float(np.loadtxt(filename, usecols=11)) )
-
 c = r.TCanvas('c','c',900,600)
 setCanvasStyle( c )
 
 leg = r.TLegend(0.895,0.28,0.95,0.925)
 
 for i in range(0, 24):
-    fileList.append( r.TFile('root/' + tag + '_fourierAnalysis_calo' + str(i+1) + '.root') )
+    fileList.append( r.TFile('root/' + tag + '_calo' + str(i+1) + '_fourierAnalysis.root') )
     histoList.append( fileList[i].Get('rad') )
     setHistogramStyle( histoList[i], '', 'Radius [mm]', 'Arbitrary' )
     histoList[i].SetLineColor ( colorList[i] )
@@ -129,20 +118,20 @@ std_w = math.sqrt(std_w)
 
 print 'width = ', avg_w, ' +- ', std_w
 
-sum_weight = 0
-for i in range(0,24):
-    sum_weight += 1/statCeStd[i]
-
-weightedCe = 0;
-for i in range(0, 24):
-    weightedCe += 1/statCeStd[i] / sum_weight * statCeMean[i]
-
-weithedSigma = 0
-for i in range(0, 24):
-    weithedSigma += (1/statCeStd[i]) / (sum_weight) * statCeStd[i]
-
-
-print weightedCe, math.sqrt(weithedSigma)
+#sum_weight = 0
+#for i in range(0,24):
+#    sum_weight += 1/statCeStd[i]
+#
+#weightedCe = 0;
+#for i in range(0, 24):
+#    weightedCe += 1/statCeStd[i] / sum_weight * statCeMean[i]
+#
+#weithedSigma = 0
+#for i in range(0, 24):
+#    weithedSigma += (1/statCeStd[i]) / (sum_weight) * statCeStd[i]
+#
+#
+#print weightedCe, math.sqrt(weithedSigma)
 
 plt.figure(1)
 fit = np.polyfit(caloNum,t0,1)
@@ -156,7 +145,6 @@ plt.savefig('plots/png/' + tag + '_t0_vs_caloNum.png', format='png')
 plt.close()
 
 plt.figure(2)
-plt.errorbar(caloNum, statXeMean, yerr=statXeStd, fmt='o', label='pseudo-data', zorder=1)
 plt.plot(caloNum, xe, 'rx', label='data', zorder=2)
 plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Calo #')
@@ -167,7 +155,6 @@ plt.savefig('plots/png/' + tag + '_xe_vs_caloNum.png', format='png')
 plt.close()
 
 plt.figure(3)
-plt.errorbar(caloNum, statWMean, yerr=statWStd, fmt='o', label='pseudo-data', zorder=1)
 plt.plot(caloNum, width, 'rx', label='data', zorder=2)
 plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Calo #')
@@ -178,7 +165,6 @@ plt.savefig('plots/png/' + tag + '_width_vs_caloNum.png', format='png')
 plt.close()
 
 plt.figure(4)
-plt.errorbar(caloNum, statCeMean, yerr=statCeStd, fmt='o', label='pseudo-data', zorder=1)
 plt.plot(caloNum, ce, 'rx', label='data', zorder=2)
 plt.legend(loc=9, bbox_to_anchor=(.1, 1.01, 0.75, .07), ncol=2, mode="", prop={'size':7})
 plt.xlabel('Calo #')

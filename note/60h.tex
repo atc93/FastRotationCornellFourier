@@ -1,0 +1,93 @@
+\documentclass{./src/gm2}
+
+% \setlength{\titleblockheight}{10cm}%adjust this lenght if it is needed
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts,bm}
+\usepackage{mathrsfs,overpic}
+\usepackage[href]{./src/journals}
+\usepackage{lscape,xspace}
+\usepackage{subfigure}
+\usepackage{morefloats}
+\usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{graphicx}
+
+%\usepackage{showframe}   
+
+\newcommand{\overbar}[1]{\mkern+2mu\overline{\mkern-2mu#1\mkern-1mu} \mkern+1mu}
+\renewcommand{\epsilon}{\varepsilon}
+\renewcommand{\rho}{\varrho}
+\newcommand{\p}{\ensuremath{\bm{p}}}
+\newcommand{\re}{\ensuremath{\Re {\rm e}}}
+\newcommand{\im}{\ensuremath{\Im {\rm m}}}
+\newcommand{\mean}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\bra}[1]{\ensuremath{\langle#1|}}
+\newcommand{\ket}[1]{\ensuremath{|#1\rangle}}
+\newcommand{\mup}{\mbox{\ensuremath{\mu^+}}}
+\newcommand{\mum}{\mbox{\ensuremath{\mu^-}}}
+%\newcommand{\MeVc}{\mbox{\ensuremath{\text{MeV}/c}}}
+%\newcommand{\GeVc}{\mbox{\ensuremath{\text{GeV}/c}}}
+\newcommand{\geant}{{\tt GEANT}}
+\newcommand{\wfd}{{\tt WFD}}
+\newcommand{\orcad}{{\tt OrCAD}}
+\newcommand{\opera}{{\tt OPERA}}
+\newcommand{\mars}{{\tt MARS}}
+\newcommand{\gbeamline}{{\tt G4Beamline}}
+\newcommand{\ea}{{\em et al.}}
+\newcommand{\amu}[1][]{\ensuremath{a_{\mu^{#1}}}}
+\newcommand{\gm}{\ensuremath{(g-2)}}
+\newcommand{\wa}{\mbox{\ensuremath{\omega_a}}}
+\renewcommand{\wp}{\mbox{\ensuremath{\omega_p}}}
+\newcommand{\wpt}{\mbox{\ensuremath{\widetilde{\omega}_p}}}
+\newcommand{\mus}{\mbox{\ensuremath{\mu\text{s}}}}
+\newcommand{\Exp}{\mbox{New \g2\ Experiment}}
+\newcommand{\runo}{{\tt RUN~1}}
+\newcommand{\sixty}{{\tt 60h}}
+\newcommand{\fr}{{Fast~Rotation}}
+\newcommand{\esq}{{\tt ESQs}}
+\newcommand{\tz}{\ensuremath{t_{0}}}
+\newcommand{\tm}{\ensuremath{t_{M}}}
+\newcommand{\ts}{\ensuremath{t_{S}}}
+
+%% Physics
+\newcommand{\xxx}{\textcolor{green}{XXX}\xspace}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+
+\begin{document}
+
+%opening
+\title{Fast Rotation Fourier analysis of the \sixty\ data-set}
+\noteid{G-2 Internal}
+\version{1.0}
+\author[1]{\mail{antoine.chapelain@cornell.edu}{A.~Chapelain}}
+\author[1]{J.~Fagin}
+\author[1]{D.~Rubin}
+\author[1]{D.~Seleznev}
+
+\affil[1]{Cornell University}
+
+\maketitle
+
+\tableofcontents
+
+\input{src/introduction.tex}
+
+\input{src/fastRotationSignal.tex}
+
+\input{src/t0Optimization}
+
+\input{src/fourier}
+
+\input{src/efield}
+
+\input{src/statUncertainty}
+
+\input{src/systUncertainty}
+
+\input{src/bibliography.tex}
+
+\end{document}

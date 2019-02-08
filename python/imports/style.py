@@ -1,6 +1,6 @@
 # For all the styling
 
-from importAll import *
+import ROOT as r
 
 def setCanvasStyle( c ):
     r.gStyle.SetOptStat(0);
@@ -28,7 +28,8 @@ def setHistogramStyle( h, title, xAxisTitle, yAxisTitle ):
     h.GetXaxis().SetLabelSize(0.05);
     h.GetYaxis().SetTitleSize(0.055);
     h.GetYaxis().SetLabelSize(0.05);
-    h.SetLineColor(4);
+    h.SetLineColor(1);
+    h.SetMarkerColor(1);
     h.SetLineWidth(2)
 
 def setCollimatorAperture( pt, pt2 ):

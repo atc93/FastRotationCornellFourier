@@ -1,8 +1,6 @@
 # To vary histogram content according to statistics
 
-from importAll import *
-
-def statFluctuation(  h ):
+def SquareRootN(  h ):
     nBins = h.GetXaxis().GetNbins()
     for iBin in range ( 1, nBins+1 ):
         binContent = h.GetBinContent( iBin )
@@ -15,7 +13,7 @@ def statFluctuation(  h ):
 
     return h
 
-def statFluctuationPoisson( h ):
+def Poisson( h ):
     nBins = h.GetXaxis().GetNbins()
     for iBin in range ( 1, nBins+1 ):
         binContent = h.GetBinContent( iBin )

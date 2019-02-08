@@ -1,0 +1,15 @@
+\BOOKMARK [1][]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][]{section.2}{Fast Rotation}{}% 2
+\BOOKMARK [2][]{subsection.2.1}{Generality}{section.2}% 3
+\BOOKMARK [2][]{subsection.2.2}{Analytical description}{section.2}% 4
+\BOOKMARK [1][]{section.3}{Theory of the Fourier Transform of the Fast Rotation Signal}{}% 5
+\BOOKMARK [2][]{subsection.3.1}{Mathematical Preliminaries}{section.3}% 6
+\BOOKMARK [2][]{subsection.3.2}{The case of initially zero bunch length}{section.3}% 7
+\BOOKMARK [2][]{subsection.3.3}{Symmetric Bunch Length Distribution \(t'\)}{section.3}% 8
+\BOOKMARK [2][]{subsection.3.4}{Asymmetric Longitudinal Bunch Distribution}{section.3}% 9
+\BOOKMARK [2][]{subsection.3.5}{Physical Interpretation of the Fourier Transform of the Fast Rotation Signal}{section.3}% 10
+\BOOKMARK [2][]{subsection.3.6}{Corrections to the Fourier Transform}{section.3}% 11
+\BOOKMARK [3][]{subsubsection.3.6.1}{A Limiting Case: One Muon}{subsection.3.6}% 12
+\BOOKMARK [1][]{section.4}{Analysis for a Gaussian Energy Offset Distribution and Initially Zero Bunch Length}{}% 13
+\BOOKMARK [2][]{subsection.4.1}{Corrections to the Fourier transform}{section.4}% 14
+\BOOKMARK [1][]{section.5}{Analysis for a Gaussian Energy Offset Distribution and Gaussian Longitudinal Distribution}{}% 15

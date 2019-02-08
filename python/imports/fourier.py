@@ -1,6 +1,8 @@
 # For the fourier computation
 
-from importAll import *
+import math
+import constants
+import numpy as np
 
 def calc_cosine_dist(t0, cosine, binContent, binCenter):
     for i in range(0, constants.nFreq):
@@ -11,7 +13,7 @@ def calc_cosine_dist(t0, cosine, binContent, binCenter):
 def calc_sine_dist(t0, sine, binContent, binCenter):
     for i in range(0, constants.nFreq):
         frequency   = ( constants.lowerFreq/1000 + constants.freqStep/1000/2) + i*constants.freqStep/1000 # in MHz
-        integral    = binContent*np.sin(2*math.pi*frequency*(binCenter-t0))*0.001
+        integral    = binContent*np.sin(2*math.pi*frequency*(binCenter-t0))*constants.freqStep/1000
         sine.SetBinContent(i+1, (np.sum(integral)))
 
 def calc_parabola_dist(t0, tS, firstApprox, parabola):

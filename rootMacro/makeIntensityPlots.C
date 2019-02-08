@@ -1,37 +1,37 @@
-void makeIntensityPlots(float Eth, float dt) {
+void makeIntensityPlots(int Eth, float dt) {
 
-    TFile file("root/60h_ROOT_Tree.root");
+    TFile file("root/9d.root");
     TCanvas c;
     TTree* tree = (TTree*) file.Get("FastRotation/frTree");
 
     float time_;
     int caloNum_;
     int bunchNum_;
-    float energy_;
+    int energy_;
     tree->SetBranchAddress("time",&time_);
     tree->SetBranchAddress("caloNum",&caloNum_);
     tree->SetBranchAddress("bunchNum",&bunchNum_);
     tree->SetBranchAddress("energy",&energy_);
-    unsigned int nEntries = tree->GetEntries();
+    unsigned long long nEntries = tree->GetEntries();
 
 
-    std::array<TH1F*, 8> h_perCaloPerBunch[24];
-    TH1F* h_perCaloAllBunch[24];
-    TH1F* h_allCalosPerBunch[8];
-    TH1F* h_allCalosallBunches = new TH1F ("allCalosallBunches_intensitySpectrum","allCalosallBunches_intensitySpectrum", 596000, 0, 596);
+    std::array<TH1D*, 8> h_perCaloPerBunch[24];
+    TH1D* h_perCaloAllBunch[24];
+    TH1D* h_allCalosPerBunch[8];
+    TH1D* h_allCalosallBunches = new TH1D ("allCalosallBunches_intensitySpectrum","allCalosallBunches_intensitySpectrum", 596000, 0, 596);
 
     TString string;
 
     for(int iCalo = 0 ; iCalo <24; ++iCalo){
 
         string = Form("calo%d_intensitySpectrum", iCalo+1);
-        h_perCaloAllBunch[iCalo] =  new TH1F (string, string, 596000, 0, 596); // to be able to divide by 149
+        h_perCaloAllBunch[iCalo] =  new TH1D (string, string, 596000, 0, 596); // to be able to divide by 149
         h_perCaloAllBunch[iCalo] -> GetXaxis() -> SetTitle ("Time [#mus]");
         h_perCaloAllBunch[iCalo] -> GetYaxis() -> SetTitle ("#");
 
         for(int iBunch = 0; iBunch < 8; ++iBunch){
             string = Form("calo%dBunch%d_intensitySpectrum", iCalo, iBunch);
-            h_perCaloPerBunch[iCalo][iBunch] =  new TH1F (string, string, 596000, 0, 596);
+            h_perCaloPerBunch[iCalo][iBunch] =  new TH1D (string, string, 596000, 0, 596);
             h_perCaloPerBunch[iCalo][iBunch] -> GetXaxis() -> SetTitle ("Time [#muns]");
             h_perCaloPerBunch[iCalo][iBunch] -> GetYaxis() -> SetTitle ("#");
         }
@@ -40,14 +40,14 @@ void makeIntensityPlots(float Eth, float dt) {
 
     for(int iBunch = 0; iBunch < 8; ++iBunch){
         string = Form("allCalosBunch%d_intensitySpectrum", iBunch);
-        h_allCalosPerBunch[iBunch] =  new TH1F (string, string, 596000, 0, 596);
+        h_allCalosPerBunch[iBunch] =  new TH1D (string, string, 596000, 0, 596);
         h_allCalosPerBunch[iBunch] -> GetXaxis() -> SetTitle ("Time [#mus]");
         h_allCalosPerBunch[iBunch] -> GetYaxis() -> SetTitle ("#");
     }
 
 
 //    for ( unsigned int i=0; i<100000; ++i ) {
-    for ( unsigned int i=0; i<nEntries; ++i ) {
+    for ( unsigned long long i=0; i<nEntries; ++i ) {
         tree->GetEntry( i );
         if ( energy_ > Eth) {
             h_perCaloAllBunch[caloNum_-1]               -> Fill ( 0.001 * 1.25 * time_ );
@@ -58,7 +58,7 @@ void makeIntensityPlots(float Eth, float dt) {
         }
     }
 
-    TFile oFile( Form("root/IntensitySpectrum_60h_Eth_%.0f_dt_%.3f.root", Eth, dt), "RECREATE");
+    TFile oFile( Form("root/IntensitySpectrum_9d_Eth_%d_dt_%.3f.root", Eth, dt), "RECREATE");
 
     h_allCalosallBunches -> Write();
 

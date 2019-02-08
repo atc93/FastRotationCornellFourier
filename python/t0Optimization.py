@@ -72,7 +72,7 @@ t0Step = int ( (uppert0 - lowert0 ) / t0StepSize ) + 1
 cosine  = r.TH1D("cosine", "cosine", constants.nFreq, constants.lowerFreq, constants.upperFreq)
 sine    = r.TH1D("sin",    "sine",   constants.nFreq, constants.lowerFreq, constants.upperFreq)
 
-def fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs ):
+def fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs, bound1, bound2 ):
     for it0 in range(0, t0Step+1):
     
         # Reset ROOT histograms
@@ -98,7 +98,7 @@ def fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs ):
         graph= r.TGraphErrors(0);
         cpt = 0
         for i in range (1, constants.nFreq+1):
-            if ( cosineClone.GetBinCenter( i ) < constants.lowerCollimatorFreq or cosineClone.GetBinCenter( i ) > constants.upperCollimatorFreq ):
+            if ( cosineClone.GetBinCenter( i ) < bound1 or cosineClone.GetBinCenter( i ) > bound2 ):
                 graph.SetPoint( cpt, cosineClone.GetBinCenter( i ), cosineClone.GetBinContent( i ) )
                 graph.SetPointError( cpt, 0, 0.025 )
                 cpt += 1
@@ -134,7 +134,7 @@ def fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs ):
         outerLine   .Draw("same")
         pt          .Draw("same")
         pt2         .Draw("same")
-        graph       .Draw("same")
+        #graph       .Draw("samep")
         c           .Draw()
     
         if ( printPlot == 1 ):
@@ -159,7 +159,7 @@ def fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs ):
         if ( printPlot == 1 and runSine == 1 ):
             c.Print('plots/eps/' + tag + '/Sine_t0_{0:.4f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
-fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs )
+fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs, constants.lowerCollimatorFreq, constants.upperCollimatorFreq )
 
 fit         = np.polyfit(t0Array,minDelta,2)
 fit_fn      = np.poly1d(fit)
@@ -175,7 +175,70 @@ plt.xlabel('$\mathregular{t_{0}}$ [ns]')
 plt.savefig('plots/eps/' + tag + '/t0Opt_coarse_fit_tS_{0}_tM_{1}.eps'.format(tS, tM))
 plt.close()
 
-## Find Minimum
+
+## Optimize inner boundaries
+
+# Reset ROOT histograms
+cosine.Reset()
+
+# Calculate cosine and sine transform
+calc_cosine_dist(optt0/1000, cosine, binContent, binCenter)
+
+cosineClone = cosine.Clone()
+
+graph= r.TGraphErrors(0);
+cpt = 0
+for i in range (1, constants.nFreq+1):
+    if ( cosineClone.GetBinCenter( i ) < constants.lowerCollimatorFreq or cosineClone.GetBinCenter( i ) > constants.upperCollimatorFreq ):
+        graph.SetPoint( cpt, cosineClone.GetBinCenter( i ), cosineClone.GetBinContent( i ) )
+        graph.SetPointError( cpt, 0, 0.025 )
+        cpt += 1
+pol3 = r.TF1("pol3", "pol3",constants.lowerFreq, constants.upperFreq);
+pol4 = r.TF1("pol4", "pol4",constants.lowerFreq, constants.upperFreq);
+graph.Fit("pol3", "qrem")
+
+pol4.SetParameter(0, pol3.GetParameter(0) )
+pol4.SetParameter(1, pol3.GetParameter(1) )
+pol4.SetParameter(2, pol3.GetParameter(2) )
+pol4.SetParameter(3, pol3.GetParameter(3) )
+graph.Fit("pol4", "qrem")
+
+x, y = r.Double(), r.Double()
+graph.GetPoint(i, x, y)
+
+fitBoundary1 = 0
+fitBoundary2 = 0
+
+magicBin = cosineClone.FindBin(6706)
+
+for i in range(magicBin, 0, -1):
+    if ( abs( cosineClone.GetBinContent(i) - pol4.Eval(cosineClone.GetBinCenter(i)) ) < 0.05 ):
+        fitBoundary1 = cosineClone.GetBinCenter(i)-1*cosineClone.GetBinWidth(1)
+        break
+for i in range(magicBin, cosineClone.GetNbinsX(), +1):
+    if ( abs( cosineClone.GetBinContent(i) - pol4.Eval(cosineClone.GetBinCenter(i)) ) < 0.05 ):
+        fitBoundary2 = cosineClone.GetBinCenter(i)+1*cosineClone.GetBinWidth(1)
+        break
+
+t0Array, minDelta, minDeltaAbs = array( 'd' ), array( 'd' ), array( 'd' )
+
+fitOptimization( t0Step, t0Array, minDelta, minDeltaAbs, fitBoundary1, fitBoundary2 )
+
+fit         = np.polyfit(t0Array,minDelta,2)
+fit_fn      = np.poly1d(fit)
+t0ArrayBis  = np.linspace( min(t0Array), max(t0Array), 100 )
+smoothed    = spline( t0Array, minDelta, t0ArrayBis )
+plt.        plot( t0Array, minDelta, 'ro')
+plt.        plot( t0ArrayBis, smoothed, 'k')
+optt0       = np.real( fit_fn.r[0] )
+
+print ' First  optimization done, t0 = ' + '{0:.2f}'.format(optt0) +  ' ns'
+plt.ylabel('F.O.M.')
+plt.xlabel('$\mathregular{t_{0}}$ [ns]')
+plt.savefig('plots/eps/' + tag + '/t0Opt_coarse_fit_boundOpt_tS_{0}_tM_{1}.eps'.format(tS, tM))
+plt.close()
+
+## Run second optimization
 
 lowert0 = optt0 - 0.001
 uppert0 = optt0 + 0.001
@@ -184,8 +247,6 @@ t0StepSize = 0.00025
 t0Step = int ( (uppert0 - lowert0 ) / t0StepSize ) + 1
 
 t0ArrayFine, minDeltaFine, minDeltaFineAbs = array( 'd' ), array( 'd' ), array( 'd' )
-
-## Run second optimization
 
 if ( optLevel > 1 ):
 

@@ -22,6 +22,9 @@ tag             = str(sys.argv[11])
 updateTextFile  = int(sys.argv[12])
 runSine         = int(sys.argv[13])
 outputDistFile  = str(sys.argv[14])
+dataType        = str(sys.argv[15])
+truthFileName   = str(sys.argv[16])
+
 
 print ''
 print ' =============================='
@@ -84,12 +87,12 @@ fom = abs( minBin1-minBin2 )
 
 cosineClone = cosine.Clone()
 #setHistogramStyle( cosineClone, 'Cosine transform (t_{0}' + '= {0:.1f} ns)'.format(t0*1000), 'Frequency [kHz]', 'Arbitrary' )
-setHistogramStyle( cosineClone, 'Cosine transform', 'Frequency [kHz]', 'Arbitrary' )
+setHistogramStyle( cosineClone, 'Cosine transform', 'Frequency [kHz]', 'Arbitrary units' )
 cosineClone.SetMaximum( cosineClone.GetMaximum()*1.3 ) 
 cosineClone.SetMinimum( cosineClone.GetMinimum()*1.2 ) 
 
 sineClone = sine.Clone()
-setHistogramStyle( sineClone, 'Sine transform (t0= {0:.1f} ns)'.format(t0*1000), 'Frequency [kHz]', 'Arbitrary' )
+setHistogramStyle( sineClone, 'Sine transform (t0= {0:.1f} ns)'.format(t0*1000), 'Frequency [kHz]', 'Arbitrary units' )
 sineClone.SetMaximum( sineClone.GetMaximum()*1.3 ) 
 sineClone.SetMinimum( sineClone.GetMinimum()*1.2 ) 
 
@@ -131,7 +134,7 @@ c.Draw()
 if ( printPlot == 1 ):
         c.Print('plots/eps/' + tag + '/Sine_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
-## First Apprxomiation
+## Apprxomiation
 
 approx = cosine.Clone()
 
@@ -160,7 +163,7 @@ for iBin in range(minBin1, minBin2+1):
     
 approxClone = approx
     
-setHistogramStyle( approxClone, 'First approximation', 'Frequency [kHz]', 'Arbitrary' )    
+setHistogramStyle( approxClone, 'Approximation', 'Frequency [kHz]', 'Arbitrary units' )    
 approxClone.SetMaximum( approxClone.GetMaximum()*1.3 ) 
 approxClone.SetMinimum( -0.5 ) 
     
@@ -181,7 +184,7 @@ pt2.Draw("same")
 c.Draw()    
 
 if ( printPlot == 1 ):
-    c.Print('plots/eps/' + tag + '/FirstApproximation_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+    c.Print('plots/eps/' + tag + '/Approximation_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
 
 # # Delta Correction
@@ -217,7 +220,7 @@ for iBin in range(1, constants.nFreq+1):
     
     
 parabolaClone = parabola.Clone()
-setHistogramStyle( parabolaClone, 'Parabola', 'Frequency [kHz]', 'Arbitrary' )    
+setHistogramStyle( parabolaClone, 'Parabola', 'Frequency [kHz]', 'Arbitrary units' )    
 parabolaClone.SetMaximum( parabolaClone.GetMaximum()*1.15 ) 
 parabolaClone.SetMinimum( parabolaClone.GetMinimum()*0.85 ) 
     
@@ -266,7 +269,7 @@ for iBin in range(1,constants.nFreq+1):
 full.SetTitle("Complete distribution")    
 
 fullClone = full.Clone()
-setHistogramStyle( fullClone, 'Complete distribution', 'Frequency [kHz]', 'Arbitrary' )    
+setHistogramStyle( fullClone, 'Complete distribution', 'Frequency [kHz]', 'Arbitrary units' )    
 fullClone.SetMaximum( fullClone.GetMaximum()*1.15 ) 
 fullClone.SetMinimum( -0.5 ) 
     
@@ -294,14 +297,43 @@ pt2.SetLineWidth(1);
 pt2.SetLineColor(1);
 pt2.SetTextAngle(90);    
     
+pt3=r.TPaveText(6664, fullClone.GetMaximum()*0.78,6689, fullClone.GetMaximum()*0.88);
+pt3.AddText('<f> = ' + '{0:.1f}'.format(fullClone.GetMean()) + ' +- ' + '{0:.1f}'.format(fullClone.GetRMS()) + ' kHz');
+pt3.SetShadowColor(0);
+pt3.SetBorderSize(1);
+pt3.SetFillColor(0);
+pt3.SetLineWidth(1);
+pt3.SetLineColor(1);
+pt3.SetTextAngle(90);
+
 fullClone.Draw()
 innerLine.Draw("same")
 outerLine.Draw("same")
 pt.Draw("same")
 pt2.Draw("same")    
-c.Draw()    
+pt3.Draw("same")    
+
+print 'rec freq: ', fullClone.GetMean()
+
+if ( dataType == "mc" or dataType == "bmad" ):
+    fullClone.Scale(1/fullClone.Integral())
+    truthFile = r.TFile( truthFileName )
+    truth = truthFile.Get( "freq" )
+    truth.Rebin(2)
+    truth.Scale(1/truth.Integral())
+    setHistogramStyle( truth, '', 'Frequency [kHz]', 'Arbitrary units' )
+    fullClone.Draw("hist")
+    truth.SetMarkerColor(4)
+    truth.SetMarkerStyle(20)
+    truth.SetMarkerSize(.7)
+    truth.Draw("samehistP")
+    print 'true freq: ', truth.GetMean()
+
+c.Draw()   
+
 if ( printPlot == 1 ):
     c.Print('plots/eps/' + tag + '/CompleteDistribution_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
+    c.Print('plots/eps/' + tag + '/CompleteDistribution_t0_{0:.5f}_tS_{1}_tM_{2}.C'.format(t0, tS, tM))    
 
 
 # # Conversion frequency -> radius
@@ -338,7 +370,7 @@ intensity = intensity/maxI
 graph = r.TGraph(constants.nFreq,radius,intensity)
 graph.SetTitle('')
 graph.GetXaxis().SetTitle("Radius [mm]")
-graph.GetYaxis().SetTitle("Arbitrary unitS")
+graph.GetYaxis().SetTitle("Arbitrary units")
 graph.GetXaxis().CenterTitle()
 graph.GetYaxis().CenterTitle()
 graph.GetXaxis().SetTitleOffset(1.4)
@@ -349,9 +381,9 @@ graph.GetYaxis().SetTitleSize(0.055);
 graph.GetYaxis().SetLabelSize(0.05);
 graph.GetXaxis().SetRangeUser(7052,7172)
 graph.SetMarkerStyle(20)
-graph.SetMarkerSize(0.6)
-graph.SetMarkerColor(4)
-graph.SetLineColor(4)
+graph.SetMarkerSize(0.9)
+graph.SetMarkerColor(1)
+graph.SetLineColor(1)
 graphMin = -0.05
 graphMax = 1.05
 graph.SetMaximum(graphMax)
@@ -421,7 +453,11 @@ msd /= sum
 
 xe -= 7112
 
-C_E_reco  = -2*beta*beta*fieldIndex*(1-fieldIndex)*msd/(7112*7112)*1e9
+#print xe, std, msd
+
+fieldIndex = fieldIndex*(1-fieldIndex) # taking <n>(1-<n>)
+C_E_reco  = -2*beta*beta*fieldIndex*msd/(7112*7112)*1e9
+print C_E_reco
 
 #print std
 
@@ -436,7 +472,7 @@ pt3.Draw("same")
 pt4=r.TPaveText(7070, graphMax*0.7,7095, graphMax*0.96);
 pt4.AddText('x_{e} = ' + '{0:.1f}'.format(xe) + ' mm');
 pt4.AddText(' #sigma = ' + '{0:.1f}'.format(std) + ' mm');
-pt4.AddText('      C_{E} = ' + '{0:.1f}'.format(C_E_reco) + ' ppb ');
+pt4.AddText('    C_{E} = ' + '{0:.0f}'.format(C_E_reco) + ' ppb ');
 pt4.SetShadowColor(0);
 pt4.SetBorderSize(1);
 pt4.SetFillColor(0);
@@ -446,10 +482,66 @@ pt4.SetTextAngle(90);
 
 pt4.Draw("same")
 
+if ( dataType == "mc" or dataType == "bmad" ):
+    truthFile = r.TFile( truthFileName )
+    truth = truthFile.Get( "r" )
+    nPoint = truth.GetN()
+    maxA = max(truth.GetY())
+    for i in range(1, nPoint):
+        x, y = r.Double(), r.Double()
+        truth.GetPoint(i, x, y)
+        truth.SetPoint(i, x, y/maxA)
+    setHistogramStyle( truth, '', 'Frequency [kHz]', 'Arbitrary units' )
+    truth.SetMarkerColor(4)
+    truth.SetLineColor(4)
+    truth.SetMarkerStyle(20)
+    truth.SetMarkerSize(.8)
+    truth.Draw("sameP")
+
+    sum = 0
+    xe_t = 0
+    for i in range(1, nPoint):
+        x, y = r.Double(), r.Double()
+        truth.GetPoint(i, x, y)
+        if ( x < constants.lowerCollimatorRad or x > constants.upperCollimatorRad ):
+            continue
+        xe_t += x*y
+        sum += y
+    xe_t /= sum       
+
+    std_t = 0
+    sum = 0
+    for i in range(1, nPoint):
+        x, y = r.Double(), r.Double()
+        truth.GetPoint(i, x, y)
+        if ( x < constants.lowerCollimatorRad or x > constants.upperCollimatorRad ):
+            continue
+        sum += y
+        std_t += (y) * (x-xe_t) * (x-xe_t)
+    
+    std_t /= sum
+    std_t = math.sqrt(std_t)
+
+    pt5=r.TPaveText(7130, graphMax*0.7,7155, graphMax*0.96);
+    pt5.AddText('Toy Monte Carlo truth');
+    pt5.AddText('x_{e} = ' + '{0:.2f}'.format(xe_t-7112) + ' mm');
+    pt5.AddText(' #sigma = ' + '{0:.2f}'.format(std_t) + ' mm');
+#    pt5.AddText('      C_{E} = ' + '{0:.1f}'.format(C_E_reco) + ' ppb ');
+    pt5.SetShadowColor(0);
+    pt5.SetBorderSize(1);
+    pt5.SetFillColor(0);
+    pt5.SetLineWidth(1);
+    pt5.SetLineColor(4);
+    pt5.SetTextColor(4);
+    pt5.SetTextAngle(90);
+    pt5.Draw("same")
+    graph.Draw("sameP")
+
 c.Draw()
 
 if ( printPlot == 1 ):
     c.Print('plots/eps/' + tag + '/Radial_t0_{0:.5f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))    
+    c.Print('plots/eps/' + tag + '/Radial_t0_{0:.5f}_tS_{1}_tM_{2}.C'.format(t0, tS, tM))    
     c.Print('plots/png/' + tag + '/Radial_t0_{0:.5f}_tS_{1}_tM_{2}.png'.format(t0, tS, tM))    
 
 
@@ -460,16 +552,20 @@ if ( printPlot == 1 ):
 #print 'b = ', b
 #print 'C_E reco  ', C_E_reco, ' ppb'
 
+tag = 'plots/eps/' + tag + '/' + tag + '.root'
+outRootFile = r.TFile(tag, "RECREATE")
+graph.Write('radial')
+outRootFile.Close()
+
 if ( updateTextFile == 1 ):
     text_file = open(str(outputTextFile), "a")
     textFileDist = open(str(outputDistFile), "a")
+    for i, j in zip(radius, intensity):
+        textFileDist.write('%f %f ' % (i, j) )
+    textFileDist.write('\n')    
 else:
     text_file = open(str(outputTextFile), "w")
 
 text_file.write('t0 %f tS %f tM %f fieldIndex %f fom %f xe_reco %f std_reco %f C_E_reco %f \n' % 
         (t0, tS, tM, fieldIndex, fom, xe, std, C_E_reco) )
 text_file.close()
-
-for i, j in zip(radius, intensity):
-    textFileDist.write('%f %f ' % (i, j) )
-textFileDist.write('\n')    

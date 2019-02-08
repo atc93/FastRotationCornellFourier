@@ -1,0 +1,57 @@
+\section{Introduction}
+
+This note presents the Cornell \fr\ analysis via the Fourier approach of the so-called $\sixty$ data set collected during $\runo$.
+The \fr\ analysis allows to extract the frequency distribution of the stored anti-muon beam or equivalently the momentum or radial distribution.
+The knowledge of the radial distribution of the beam is essential in order to estimate the correction to \wa\ from the electro-static quadrupoles (\esq),
+the so-called electric field correction.
+
+\subsection{Fast Rotation signal}
+
+The so-called \fr\ signal corresponds to the number of positron counts as a function of time $N(t)$ corrected by the major signal
+features so as to leave only the bunching feature of the beam. The features corrected for are: the boosted anti-muon life-time $\tau$,
+the spin precession frequency of the anti-muon \wa\; so as to obtain a normalized intensity spectrum whose feature is to a
+really good first approximation due to the bunching characteristics of the beam. The correction is performed using the standard
+5-parameter fit:
+
+\begin{equation}
+        N(t) = N_{0}e^{-t/\tau}[1+Acos(\wa t + \phi)],
+\end{equation}
+
+where $N_{0}$ is the number of detected positron at the start of the fit, $A$ called the asymmetry is the amplitude of the
+modulation due to the spin precession and $\phi$ the phase of the modulation.
+
+\subsection{Fourier analysis}
+
+The Fourier analysis relies on calculating the cosine (or real part) Fourier transform of the \fr\ signal:
+
+\begin{equation}
+    S(\omega,t_{s},t_{m}) = \int^{t_{m}}_{t_{s}} S(t) cos\omega(t-t_{0})dt,
+\label{eq:cosine}
+\end{equation}
+
+where $S(t)$ is the \fr\ signal, \tz\ the time corresponding to the center of mass of the beam passing the detector for the first time,
+and \ts\ and \tm\ are respectively the start and end time of the \fr\ signal. The parameter \tz, \ts\ and \tm\ are at the core of the
+Fourier analysis. In the ideal case of having access to the data from the first turn ($t_{s}=t_{0}$) when the anti-muon beam enters the 
+ring, the equation above is exact and yield to the correct frequency distribution $\Phi(\omega)$: 
+
+\begin{equation}
+    \Phi(\omega) = S(\omega,t_{s}=t_{0},t_{m}) = \int^{t_{m}}_{t_{0}} S(t) cos\omega(t-t_{0})dt
+\end{equation}
+
+Unfortunately the calorimeter data for \runo\ are only
+available after couple micro-seconds. In this case eq. (\ref{eq:cosine}) is only a good approximation of the frequency distribution and it needs an additional
+correction term, which is:
+
+\begin{equation}
+    \Delta(\omega)=\int^{\omega^+}_{\omega^-}{S}(\omega')\frac{\sin(\omega-\omega')(t_s-t_0)}{\omega-\omega'}d\omega'
+    \label{eq:OrlovDelta}
+\end{equation}
+
+The correct frequency distribution can be retrived via:
+
+\begin{equation}
+    \Phi(\omega) = \int^{t_{m}}_{t_{s}} S(t) cos\omega(t-t_{0})dt + A \cdot \int^{\omega^+}_{\omega^-}{S}(\omega')\frac{\sin(\omega-\omega')(t_s-t_0)}{\omega-\omega'}d\omega' + B,
+\end{equation}
+
+where $A$ and $B$ are optimized so that the frequency distribution vanishes in the regions outside the collimators aperture where muons cannot be stored.
+For more details regarding the Fourier approach, please refer to~\cite{orlov, daniel}.
