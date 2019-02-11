@@ -206,117 +206,57 @@ plt.close()
 
 if ( optLevel > 1 ):
 
+    #== Define arrays to store results from optimization loop ==#
     t0ArrayFine, minDeltaFine, minDeltaFineAbs = array.array( 'd' ), array.array( 'd' ), array.array( 'd' )
     
+    #== Compute the size of the t0 step ==#
     lowert0 = optt0 - 0.2
     uppert0 = optt0 + 0.2
     t0StepSize = 0.02
-    
     t0Step = int ( (uppert0 - lowert0 ) / t0StepSize ) + 1
 
+    #== Run the optimization loop ==#
     optimizationLoop( t0Step, t0ArrayFine, minDeltaFine, minDeltaFineAbs )
     
+    #== Fit the results to extract the optimized t0 ==#
     fit = np.polyfit(t0ArrayFine,minDeltaFine,1)
     fit_fn = np.poly1d(fit)
-    plt.plot(t0ArrayFine, minDeltaFine, 'ro', t0ArrayFine, fit_fn(t0ArrayFine), 'k')
     optt0 = -fit_fn.c[1]/fit_fn.c[0]
+
     print ' Second optimization done, t0 = ' + '{0:.2f}'.format(optt0) +  ' ns'
+
+    #== Plot the optimization results ==#
+    plt.plot(t0ArrayFine, minDeltaFine, 'ro', t0ArrayFine, fit_fn(t0ArrayFine), 'k')
     plt.ylabel('F.O.M.')
     plt.xlabel('$\mathregular{t_{0}}$ [ns]')
     plt.savefig('plots/eps/' + tag + '/t0Opt_fine_fit_tS_{0}_tM_{1}.eps'.format(tS, tM))
     plt.close()
+
+    #== Plot the optimization results ==#
     plt.plot(t0ArrayFine, minDeltaFineAbs, 'ro', label='data')
     plt.ylabel('F.O.M.')
     plt.xlabel('$\mathregular{t_{0}}$ [ns]')
     plt.savefig('plots/eps/' + tag + '/t0Opt_fine_tS_{0}_tM_{1}.eps'.format(tS, tM))
     plt.close()
 
-## Run third optimization
-
-if ( optLevel > 2 ):
-
-    ## Find minimum
-    
-    minFOM =  minDeltaFine.index(min(minDeltaFine))
-    
-    lowert0 = -fit_fn.c[1]/fit_fn.c[0] - 0.00005
-    uppert0 = -fit_fn.c[1]/fit_fn.c[0] + 0.00005
-    t0StepSize = 0.00001
-    
-    t0Step = int ( (uppert0 - lowert0 ) / t0StepSize ) + 1
-    
-    t0ArrayVeryFine, minDeltaVeryFine, minDeltaVeryFineAbs = array.array( 'd' ), array.array( 'd' ), array.array( 'd' )
-
-    optimizationLoop( t0Step, t0ArrayVeryFine, minDeltaVeryFine, minDeltaVeryFineAbs )
-    
-    fit = np.polyfit(t0ArrayVeryFine,minDeltaVeryFine,1)
-    fit_fn = np.poly1d(fit)
-    plt.plot(t0ArrayVeryFine, minDeltaVeryFine, 'ro', t0ArrayVeryFine, fit_fn(t0ArrayVeryFine), 'k')
-    optt0 = -fit_fn.c[1]/fit_fn.c[0]
-    print ' Third  optimization done, t0 = ' + '{0:.2f}'.format(optt0) +  ' ns'
-    plt.ylabel('F.O.M.')
-    plt.xlabel('$\mathregular{t_{0}}$ [ns]')
-    plt.savefig('plots/eps/' + tag + '/t0Opt_veryFine_fit_tS_{0}_tM_{1}.eps'.format(tS, tM))
-    plt.close()
-    plt.plot(t0ArrayVeryFine, minDeltaVeryFineAbs, 'ro', label='data')
-    plt.ylabel('F.O.M.')
-    plt.xlabel('$\mathregular{t_{0}}$ [ns]')
-    plt.savefig('plots/eps/' + tag + '/t0Opt_veryFine_tS_{0}_tM_{1}.eps'.format(tS, tM))
-    plt.close()
-    
-    ## Find minimum
-    
-    minFOM =  minDeltaVeryFine.index(min(minDeltaVeryFine))
-    
-    lowert0 = t0ArrayVeryFine[minFOM] - 0.0001
-    uppert0 = t0ArrayVeryFine[minFOM] + 0.0001
-    t0StepSize = 0.00001
-    
-    t0Step = int ( (uppert0 - lowert0 ) / t0StepSize ) + 1
-    
-    t0ArrayUltraFine, minDeltaUltraFine = array( 'd' ), array( 'd' )
-
-## Run fourth optimization
-
-if ( optLevel > 3 ):
-    optimizationLoop( t0Step, t0ArrayUltraFine, minDeltaUltraFine )
-    
-    print ' Fourth optimization done'
-    
-    plt.plot(t0ArrayUltraFine, minDeltaUltraFine, 'ro', label='data')
-    plt.ylabel('F.O.M.')
-    plt.xlabel('$\mathregular{t_{0}}$ [$\mathregular{\mu}$s]')
-    plt.savefig('plots/eps/' + tag + '/t0Opt_ultraFine_tS_{0}_tM_{1}.eps'.format(tS, tM))
-    plt.close()
-    
-    minFOM =  minDeltaVeryFine.index(min(minDeltaVeryFine))
-
-## All the steps on one plot
-
-if ( optLevel > 1 ):
+    #== Append results to previous optimization results ==#
     t0Array.extend( t0ArrayFine )
     minDelta.extend( minDeltaFine )
-if ( optLevel > 2 ):
-    t0Array.extend( t0ArrayVeryFine )
-    minDelta.extend( minDeltaVeryFine )
 
+#== Plotting the results from the different steps ==#
 plt.plot(t0Array, minDelta, 'ro', label='data')
 plt.ylabel('F.O.M.')
 plt.xlabel('$\mathregular{t_{0}}$ [$\mathregular{\mu}$s]')
 plt.savefig('plots/eps/' + tag + '/t0Opt_tS_{0}_tM_{1}.eps'.format(tS, tM))
 plt.close()
 
-text_file = open(str(outputTextFile), "w")
+#== Writing the optimized t0 value to a text file ==#
+text_file = open(str(outputTextFile), "w") # Any existing file will be overwritten
 
-optt0 /= 1000
-
-if ( optLevel > 3 ):
-    text_file.write( '%f\n' % optt0 )
-elif ( optLevel > 2 ):
-    text_file.write( '%f\n' % optt0 )
-elif ( optLevel > 1 ):
-    text_file.write( '%f\n' % optt0 )
+if ( optLevel > 1 ):
+    text_file.write( '%f\n' % optt0/1000 ) # Convert from ns to mu-s
 else:
-    text_file.write( '%f\n' % optt0 )
+    text_file.write( '%f\n' % optt0/1000 ) # Convert from ns to mu-s
 
+#== Close text file ==#
 text_file.close()
