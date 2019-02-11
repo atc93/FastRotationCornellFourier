@@ -86,9 +86,9 @@ def optimizationLoop( t0Step, t0Array, minDelta, minDeltaAbs ):
         t0 = lowert0 + it0 * t0StepSize
     
         #== Calculate cosine and sine transforms ==#
-        fourier.calc_cosine_dist(t0/1000, cosine, binContent, binCenter) # divide by 1,000 to convert from mu-s ns
+        fourier.calcCosineTransform(t0/1000, cosine, binContent, binCenter) # divide by 1,000 to convert from mu-s ns
         if ( runSine == 1 ):
-            fourier.calc_sine_dist(t0/1000, sine, binContent, binCenter)
+            fourier.calcSineTrasnform(t0/1000, sine, binContent, binCenter)
     
         #== Extract minima of distribution for t0 optimization ==#
         #== First minimum to the left of the peak (peak roughly 6700 kHz) ==#

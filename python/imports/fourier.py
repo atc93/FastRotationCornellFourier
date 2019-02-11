@@ -1,22 +1,27 @@
-# For the fourier computation
+#==============================================================#
+#== IMPORT FILE CONTAINING THE MATH FOR THE FOURIER ANALYSIS ==#
+#==============================================================#
 
 import math
 import constants
 import numpy as np
 
-def calc_cosine_dist(t0, cosine, binContent, binCenter):
+#== Compute the Cosine Fourier transform ==#
+def calcCosineTransform(t0, cosine, binContent, binCenter):
     for i in range(0, constants.nFreq):
         frequency   = ( constants.lowerFreq/1000 + constants.freqStep/1000/2) + i*constants.freqStep/1000 # in MHz
         integral    = binContent*np.cos(2*math.pi*frequency*(binCenter-t0))*0.001 # time hist in micro-sec
         cosine.SetBinContent(i+1, (np.sum(integral)))
 
-def calc_sine_dist(t0, sine, binContent, binCenter):
+#== Compute the Sine Fourier transform ==#
+def calcSineTransform(t0, sine, binContent, binCenter):
     for i in range(0, constants.nFreq):
         frequency   = ( constants.lowerFreq/1000 + constants.freqStep/1000/2) + i*constants.freqStep/1000 # in MHz
         integral    = binContent*np.sin(2*math.pi*frequency*(binCenter-t0))*constants.freqStep/1000
         sine.SetBinContent(i+1, (np.sum(integral)))
 
-def calc_parabola_dist(t0, tS, firstApprox, parabola):
+#== Compute the Parabola correction distribution ==#
+def calcParabola(t0, tS, firstApprox, parabola):
     for i in range(0, constants.nFreq):
         frq = ( constants.lowerFreq + constants.freqStep/2) + i*constants.freqStep # in MHz
         integral = 0
@@ -27,6 +32,7 @@ def calc_parabola_dist(t0, tS, firstApprox, parabola):
                 integral += 2*math.pi*firstApprox.GetBinContent(j)*(tS-t0)/1000000
         parabola.SetBinContent(i+1,integral)
 
+#== Perform the background minimization ==#
 def minimization(parabola, cosine):
 
     x = []

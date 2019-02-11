@@ -1,6 +1,9 @@
-# To vary histogram content according to statistics
+#=======================================================#
+#== IMPORT FILE CONTAINING STAT FLUCTUATION FUNCTIONS ==#
+#=======================================================#
 
-def SquareRootN(  h ):
+#== Square root of N fluctuation ==#
+def squareRootN(  h ):
     nBins = h.GetXaxis().GetNbins()
     for iBin in range ( 1, nBins+1 ):
         binContent = h.GetBinContent( iBin )
@@ -13,7 +16,8 @@ def SquareRootN(  h ):
 
     return h
 
-def Poisson( h ):
+#== Poisson fluctuation ==#
+def poisson( h ):
     nBins = h.GetXaxis().GetNbins()
     for iBin in range ( 1, nBins+1 ):
         binContent = h.GetBinContent( iBin )

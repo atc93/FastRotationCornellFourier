@@ -1,5 +1,8 @@
-# For all the styling
+#==============================================#
+#== IMPORT FILE CONTAINING PLOTTING FUCNTION ==#
+#==============================================#
 
+#== To plot/print a histogram/canvas ==#
 def plot( c, h, name, lower, upper ):
     h.GetXaxis().SetRangeUser( lower, upper );
     h.Draw("hist");

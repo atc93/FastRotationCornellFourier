@@ -51,7 +51,7 @@ style.setHistogramStyle( rawHist, '', 'Time [#mus]', 'Intensity')
 #== Allow or not statistical fluctuation of raw histogram ==#
 
 if ( statFluc == 1 ):
-    rawHist = statFluctuation.Poisson( rawHist )
+    rawHist = statFluctuation.poisson( rawHist )
 
 rawHist.Write()
 

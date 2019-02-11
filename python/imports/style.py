@@ -1,7 +1,10 @@
-# For all the styling
+#==============================================#
+#== IMPORT FILE CONTAINING STYLING FUNCTIONS ==#
+#==============================================#
 
 import ROOT as r
 
+#== Define canvas style ==#
 def setCanvasStyle( c ):
     r.gStyle.SetOptStat(0);
     r.gStyle.SetOptFit(0);
@@ -16,6 +19,7 @@ def setCanvasStyle( c ):
     c.SetTopMargin(0.075);
     c.SetBottomMargin(0.15);
 
+#== Define histogram style ==#
 def setHistogramStyle( h, title, xAxisTitle, yAxisTitle ):
     h.SetTitle( title );
     h.GetXaxis().CenterTitle();
@@ -32,6 +36,7 @@ def setHistogramStyle( h, title, xAxisTitle, yAxisTitle ):
     h.SetMarkerColor(1);
     h.SetLineWidth(2)
 
+#== Define pave text style for collimator aperture ==#
 def setCollimatorAperture( pt, pt2 ):
     pt.AddText("collimators");
     pt.AddText("aperture");
