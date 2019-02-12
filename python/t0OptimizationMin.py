@@ -4,6 +4,7 @@ import sys
 import array
 import ROOT as r
 import numpy as np
+import imports.util as util
 import imports.style as style
 import matplotlib.pyplot as plt
 import imports.fourier as fourier
@@ -44,32 +45,21 @@ print ''
 #== Retrieve histogram from input ROOT file ==#
 
 inFile = r.TFile( inputRootFile )
-fr = inFile.Get( histoName )
+frHist = inFile.Get( histoName )
 
 #== Apply styles to histograms and canvas ==#
 
 c = r.TCanvas( 'c', 'c', 900, 600 )
+
 style.setCanvasStyle( c )
-style.setHistogramStyle( fr, '', 'Time [#mus]', 'Intensity [a.u.]')
+style.setHistogramStyle( frHist, '', 'Time [#mus]', 'Intensity [a.u.]' )
 
-#== Find bin indexes for desire signal start (tS) and end time (tm)
-
-startBin = fr.FindBin(tS) 
-endBin   = fr.FindBin(tM)
-
-#== Copy histogram to numpy array (to speed-up downstream processing) ==#
-
-binCenter   = np.empty( int(endBin-startBin+1), dtype=float )
-binContent  = np.empty( int(endBin-startBin+1), dtype=float )
-
-for j in range(startBin, endBin):
-    binContent[j-startBin] = fr.GetBinContent(j)  
-    binCenter [j-startBin] = fr.GetBinCenter(j)   
+#== Copy ROOT histogram to numpy array (to speed-up downstream processing) ==#
+binCenter, binContent = util.rootHistToNumpArray( frHist, tS, tM ) # tS and tM provide the histogram range to copy
 
 #== Define ROOT histograms to hold Cosine and Sine transforms ==#
-
-cosine  = r.TH1D("cosine", "cosine", constants.nFreq, constants.lowerFreq, constants.upperFreq)
-sine    = r.TH1D("sine",   "sine",   constants.nFreq, constants.lowerFreq, constants.upperFreq)
+cosine  = r.TH1D( "cosine", "cosine", constants.nFreq, constants.lowerFreq, constants.upperFreq )
+sine    = r.TH1D( "sine",   "sine",   constants.nFreq, constants.lowerFreq, constants.upperFreq )
 
 #== Define function that performs the Fourier transforms and compute the FOM to optimize/loop over t0 ==#
 
@@ -88,7 +78,7 @@ def optimizationLoop( t0Step, t0Array, minDelta, minDeltaAbs ):
         #== Calculate cosine and sine transforms ==#
         fourier.calcCosineTransform(t0/1000, cosine, binContent, binCenter) # divide by 1,000 to convert from mu-s ns
         if ( runSine == 1 ):
-            fourier.calcSineTrasnform(t0/1000, sine, binContent, binCenter)
+            fourier.calcSineTransform(t0/1000, sine, binContent, binCenter)
     
         #== Extract minima of distribution for t0 optimization ==#
         #== First minimum to the left of the peak (peak roughly 6700 kHz) ==#
@@ -106,64 +96,58 @@ def optimizationLoop( t0Step, t0Array, minDelta, minDeltaAbs ):
         t0Array.append( t0 )
         minDelta.append( fom )
         minDeltaAbs.append( abs(fom) )
-   
-        #== Clone cosine histogram for plotting/styling puporses ==#
-        cosineClone = cosine.Clone()
-        style.setHistogramStyle( cosineClone, 'Cosine transform: t_{0} = ' + '{0:.1f} ns'.format(t0), 'Frequency [kHz]', 'Arbitrary' )
-        cosineClone.SetMaximum( cosineClone.GetMaximum()*1.3 ) 
-        cosineClone.SetMinimum( cosineClone.GetMinimum()*1.2 ) 
 
-        #== Clone sine histogram for plotting/styling puporses ==#
-        sineClone = sine.Clone()
-        style.setHistogramStyle( sineClone, 'Sine transform: t_{0} = ' + '{0:.1f} ns'.format(t0), 'Frequency [kHz]', 'Arbitrary' )
-        sineClone.SetMaximum( sineClone.GetMaximum()*1.3 ) 
-        sineClone.SetMinimum( sineClone.GetMinimum()*1.2 ) 
-   
-        #== Define lines to be drawn at collimator apertures for cosine plot ==#
-        innerLine = r.TLine( constants.lowerCollimatorFreq, cosineClone.GetMinimum(), constants.lowerCollimatorFreq, cosineClone.GetMaximum())
-        innerLine.SetLineWidth(3)
-        outerLine = r.TLine( constants.upperCollimatorFreq, cosineClone.GetMinimum(), constants.upperCollimatorFreq, cosineClone.GetMaximum())
-        outerLine.SetLineWidth(3)    
+        #== Define histogram names ==#
+        histoName = [ 'Cosine transform: t_{0} = ' + '{0:.1f} ns'.format(t0), 'Sine transform: t_{0} = ' + '{0:.1f} ns'.format(t0) ]
+ 
+        #== Styling and Plotting for Cosine and Sine Fourier transform ==#
+        for idx in range ( 0, 2 ):
 
-        #== Define pave text to go along the collimator apertures lines for cosine plot ==#
-        pt  = r.TPaveText( constants.lowerCollimatorTextFreq1, cosineClone.GetMaximum()*0.38, constants.lowerCollimatorTextFreq2, cosineClone.GetMaximum()*0.52);
-        pt2 = r.TPaveText( constants.upperCollimatorTextFreq1, cosineClone.GetMaximum()*0.38, constants.upperCollimatorTextFreq2, cosineClone.GetMaximum()*0.52);
-        style.setCollimatorAperture( pt, pt2 )
+            #== Clone cosine histogram for plotting/styling puporses ==#
+            cosineClone = cosine.Clone()
+            #== Clone sine histogram for plotting/styling puporses ==#
+            sineClone = sine.Clone()
+
+            cloneHistList = [ cosineClone, sineClone ]
+
+            #== Style the Fourier transform histogram ==#
+            style.setHistogramStyle( cloneHistList[ idx ], histoName[ idx ], 'Frequency [kHz]', 'Arbitrary' )
+            cloneHistList[ idx ].SetMaximum( cloneHistList[ idx ].GetMaximum()*1.3 ) 
+            cloneHistList[ idx ].SetMinimum( cloneHistList[ idx ].GetMinimum()*1.2 ) 
    
-        #== Draw it all for the cosine transform ==#
-        cosineClone.Draw()
-        innerLine   .Draw("same")
-        outerLine   .Draw("same")
-        pt          .Draw("same")
-        pt2         .Draw("same")
-        c           .Draw()
+            #== Define lines to be drawn at collimator apertures ==#
+            innerLine = r.TLine( constants.lowerCollimatorFreq, cloneHistList[ idx ].GetMinimum(), 
+                    constants.lowerCollimatorFreq, cloneHistList[ idx ].GetMaximum())
+            innerLine.SetLineWidth(3)
+            outerLine = r.TLine( constants.upperCollimatorFreq, cloneHistList[ idx ].GetMinimum(), 
+                    constants.upperCollimatorFreq, cloneHistList[ idx ].GetMaximum())
+            outerLine.SetLineWidth(3)    
+
+            #== Define pave text to go along the collimator apertures lines ==#
+            pt  = r.TPaveText( constants.lowerCollimatorTextFreq1, cloneHistList[ idx ].GetMaximum()*0.38, 
+                    constants.lowerCollimatorTextFreq2, cloneHistList[ idx ].GetMaximum()*0.52 );
+            pt2 = r.TPaveText( constants.upperCollimatorTextFreq1, cloneHistList[ idx ].GetMaximum()*0.38, 
+                    constants.upperCollimatorTextFreq2, cloneHistList[ idx ].GetMaximum()*0.52 );
+            style.setCollimatorAperture( pt, pt2 )
    
-        #== Save plot if option provided ==#
-        if ( printPlot == 1 ):
-            c.Print('plots/eps/'+ tag + '/Cosine_t0_{0:.4f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+            #== Draw it all ==#
+            cloneHistList[ idx ].Draw()
+            innerLine   .Draw("same")
+            outerLine   .Draw("same")
+            pt          .Draw("same")
+            pt2         .Draw("same")
+            c           .Draw()
+   
+            #== Save plot if option provided ==#
+            if ( idx == 0 and printPlot == 1 ):
+                c.Print('plots/eps/'+ tag + '/Cosine_t0_{0:.4f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+                c.Print('plots/eps/'+ tag + '/Cosine_t0Optimization_tS_{0}_tM_{1}.gif+10'.format(tS, tM))
     
-        #== Define lines to be drawn at collimator apertures for sine plot ==#
-        innerLine = r.TLine( constants.lowerCollimatorFreq, sineClone.GetMinimum(), constants.lowerCollimatorFreq, sineClone.GetMaximum())
-        innerLine.SetLineWidth(3)
-        outerLine = r.TLine( constants.upperCollimatorFreq, sineClone.GetMinimum(), constants.upperCollimatorFreq, sineClone.GetMaximum())
-        outerLine.SetLineWidth(3)    
-    
-        #== Define pave text to go along the collimator apertures lines for sine plot ==#
-        pt  = r.TPaveText( constants.lowerCollimatorTextFreq1, sineClone.GetMaximum()*0.38, constants.lowerCollimatorTextFreq2, sineClone.GetMaximum()*0.52);
-        pt2 = r.TPaveText( constants.upperCollimatorTextFreq1, sineClone.GetMaximum()*0.38, constants.upperCollimatorTextFreq2, sineClone.GetMaximum()*0.52);
-        style.setCollimatorAperture( pt, pt2 )
-    
-        #== Draw it all for the sine transform ==#
-        sineClone.Draw()
-        innerLine   .Draw("same")
-        outerLine   .Draw("same")
-        pt          .Draw("same")
-        pt2         .Draw("same")
-        c           .Draw()
-    
-        #== Save plot if option provided and if sine transform was performed ==#
-        if ( printPlot == 1 and runSine == 1 ):
-            c.Print('plots/eps/' + tag + '/Sine_t0_{0:.4f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+            #== Save plot if option provided and if sine transform was performed ==#
+            if ( idx == 1 and printPlot == 1 and runSine == 1 ):
+                c.Print('plots/eps/' + tag + '/Sine_t0_{0:.4f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+
+
 
 #=============================#
 #== First optimization loop ==#
@@ -253,10 +237,12 @@ plt.close()
 #== Writing the optimized t0 value to a text file ==#
 text_file = open(str(outputTextFile), "w") # Any existing file will be overwritten
 
+optt0 /= 1000 # Convert from ns to mu-s
+
 if ( optLevel > 1 ):
-    text_file.write( '%f\n' % optt0/1000 ) # Convert from ns to mu-s
+    text_file.write( '%f\n' % optt0 )
 else:
-    text_file.write( '%f\n' % optt0/1000 ) # Convert from ns to mu-s
+    text_file.write( '%f\n' % optt0 )
 
 #== Close text file ==#
 text_file.close()
