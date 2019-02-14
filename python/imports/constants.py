@@ -2,8 +2,17 @@
 #== IMPORT FILE CONTAINING VARIOUS CONSTANTS ==#
 #==============================================#
 
+import math
+
 #== Physics constants ==#
-speedOfLight = 299792458 #speed of light [m/s]
+muonMass    = .105658 # in GeV
+magicR      = 7112 # in mm
+magicP      = 3.094 # in GeV
+magicE      = math.sqrt( math.pow( muonMass, 2 ) + math.pow( magicP, 2 ) ) # in GeV
+magicGamma  = magicE / muonMass # dimensionless
+magicBeta   = magicP / ( magicGamma * muonMass ) # dimensionless
+speedOfLight = 299792458 # in m/s
+magicFreq   = speedOfLight / ( 2 * math.pi * (magicR) ) # MHz
 
 #== For plotting purposes ==#
 
@@ -20,6 +29,12 @@ upperCollimatorTextFreq2 = float(6759) # in kHz
 ##== Collimator radius boundaries to draw line ==##
 lowerCollimatorRad = float(7112-45) # in mm
 upperCollimatorRad = float(7112+45) # in mm
+
+##== Collimator radial boundaries to print out text ==##
+lowerCollimatorTextRad1 = float(7060) # in kHz 
+lowerCollimatorTextRad2 = float(7074) # in kHz
+upperCollimatorTextRad1 = float(7150) # in kHz
+upperCollimatorTextRad2 = float(7164) # in kHz
 
 #== For analysis purposes ==#
 

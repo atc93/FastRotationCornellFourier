@@ -12,3 +12,12 @@ def plot( c, h, name, lower, upper ):
     printName = 'plots/png/' + name + '_{0}us_{1}us.png'.format(lower, upper)
     c.Print( printName )
 
+#== Function to plot multiples objects on the same Canvas ==#
+def plotMultipleObjects( opt, objectList ):
+    cpt = 0
+    for obj in objectList:
+        if ( cpt == 0 ):
+            obj.Draw( opt )
+        else:
+            obj.Draw("same")
+        cpt += 1
