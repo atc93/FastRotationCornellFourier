@@ -3,8 +3,19 @@
 #==============================================================#
 
 import math
-import constants
 import numpy as np
+import imports.constants as constants
+
+#== Extract the two minima of the Cosine Fourier transform ==#
+def extractMinima( hist ):
+    hist.GetXaxis().SetRangeUser( constants.lowerFreq, constants.magicFreq )
+    min1 = hist.GetMinimum()
+    minBinIdx1 = hist.GetMinimumBin()
+    hist.GetXaxis().SetRangeUser( constants.magicFreq, constants.upperFreq )
+    min2 = hist.GetMinimum()
+    minBinIdx2 = hist.GetMinimumBin()
+    hist.GetXaxis().SetRangeUser( constants.lowerFreq, constants.upperFreq )
+    return min1, min2, abs( min1-min2 ), minBinIdx1, minBinIdx2
 
 #== Compute the Cosine Fourier transform ==#
 def calcCosineTransform(t0, cosine, binContent, binCenter):
@@ -46,6 +57,14 @@ def minimization(parabola, cosine):
             y.append(cosine.GetBinContent(i))
 
     A = np.vstack([x, np.ones(len(x))]).T
-    m, c = np.linalg.lstsq(A, y,rcond=None)[0]
+    m, c = np.linalg.lstsq(A, y,rcond=-1)[0]
 
     return m, c
+
+#== Convert Frequency to Radius ==#
+#== Assume velocity corresponding to magic momentum for all the muons. Velocity depends very little on momentum ==#
+def convertFreqToRadius( freqHist, radius, intensity ):
+    for i in range( 1, constants.nFreq+1 ):
+        radius.append   ( constants.speedOfLight * constants.magicBeta / ( 2*math.pi*freqHist.GetBinCenter(i) ) )
+        intensity.append( freqHist.GetBinContent(i))
+

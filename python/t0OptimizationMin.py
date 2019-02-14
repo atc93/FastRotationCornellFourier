@@ -30,17 +30,17 @@ saveROOT        = int   (sys.argv[12])
 tag             = str   (sys.argv[13])
 runSine         = int   (sys.argv[14])
 
-print ''
-print ' ============================= '
-print ' == t0 optimization routine == '
-print ' ============================= '
-print '   lower t0     = ', lowert0, ' ns'
-print '   upper t0     = ', uppert0, ' ns'
-print '   t0 step size = ', t0StepSize, ' ns'
-print '   tS           = ', tS, ' mu-s'
-print '   tM           = ', tM, ' mu-s'
-print ' ============================= '
-print ''
+print ( '' )
+print ( ' ============================= ' )
+print ( ' == t0 optimization routine == ' )
+print ( ' ============================= ' )
+print ( '   lower t0     = ', lowert0, ' ns' )
+print ( '   upper t0     = ', uppert0, ' ns' )
+print ( '   t0 step size = ', t0StepSize, ' ns' )
+print ( '   tS           = ', tS, ' mu-s' )
+print ( '   tM           = ', tM, ' mu-s ' )
+print ( ' =============================' )
+print ( '' )
 
 #== Retrieve histogram from input ROOT file ==#
 
@@ -51,8 +51,8 @@ frHist = inFile.Get( histoName )
 
 c = r.TCanvas( 'c', 'c', 900, 600 )
 
-style.setCanvasStyle( c )
-style.setHistogramStyle( frHist, '', 'Time [#mus]', 'Intensity [a.u.]' )
+style.setTCanvasStyle( c )
+style.setTH1Style( frHist, '', 'Time [#mus]', 'Intensity [a.u.]' )
 
 #== Copy ROOT histogram to numpy array (to speed-up downstream processing) ==#
 binCenter, binContent = util.rootHistToNumpArray( frHist, tS, tM ) # tS and tM provide the histogram range to copy
@@ -98,37 +98,28 @@ def optimizationLoop( t0Step, t0Array, minDelta, minDeltaAbs ):
         minDeltaAbs.append( abs(fom) )
 
         #== Define histogram names ==#
-        histoName = [ 'Cosine transform: t_{0} = ' + '{0:.1f} ns'.format(t0), 'Sine transform: t_{0} = ' + '{0:.1f} ns'.format(t0) ]
+        histoName = [ 'Cosine transform: t_{0} = ' + '{0:.2f} ns'.format(t0), 'Sine transform: t_{0} = ' + '{0:.2f} ns'.format(t0) ]
  
+        #== Clone cosine histogram for plotting/styling puporses ==#
+        cosineClone = cosine.Clone()
+
+        #== Clone sine histogram for plotting/styling puporses ==#
+        sineClone = sine.Clone()
+
+        #== Create a list containing both Cosine and Sine histograms ==#
+        cloneHistList = [ cosineClone, sineClone ]
+
         #== Styling and Plotting for Cosine and Sine Fourier transform ==#
         for idx in range ( 0, 2 ):
 
-            #== Clone cosine histogram for plotting/styling puporses ==#
-            cosineClone = cosine.Clone()
-            #== Clone sine histogram for plotting/styling puporses ==#
-            sineClone = sine.Clone()
-
-            cloneHistList = [ cosineClone, sineClone ]
-
             #== Style the Fourier transform histogram ==#
-            style.setHistogramStyle( cloneHistList[ idx ], histoName[ idx ], 'Frequency [kHz]', 'Arbitrary' )
-            cloneHistList[ idx ].SetMaximum( cloneHistList[ idx ].GetMaximum()*1.3 ) 
-            cloneHistList[ idx ].SetMinimum( cloneHistList[ idx ].GetMinimum()*1.2 ) 
+            style.setTH1Style( cloneHistList[ idx ], histoName[ idx ], 'Frequency [kHz]', 'Arbitrary', 1.2, 1.3 )
    
             #== Define lines to be drawn at collimator apertures ==#
-            innerLine = r.TLine( constants.lowerCollimatorFreq, cloneHistList[ idx ].GetMinimum(), 
-                    constants.lowerCollimatorFreq, cloneHistList[ idx ].GetMaximum())
-            innerLine.SetLineWidth(3)
-            outerLine = r.TLine( constants.upperCollimatorFreq, cloneHistList[ idx ].GetMinimum(), 
-                    constants.upperCollimatorFreq, cloneHistList[ idx ].GetMaximum())
-            outerLine.SetLineWidth(3)    
+            innerLine, outerLine = style.setCollimatorApertureTLine( cloneHistList[ idx ].GetMinimum(), cloneHistList[ idx ].GetMaximum(), 'frequency' )
 
             #== Define pave text to go along the collimator apertures lines ==#
-            pt  = r.TPaveText( constants.lowerCollimatorTextFreq1, cloneHistList[ idx ].GetMaximum()*0.38, 
-                    constants.lowerCollimatorTextFreq2, cloneHistList[ idx ].GetMaximum()*0.52 );
-            pt2 = r.TPaveText( constants.upperCollimatorTextFreq1, cloneHistList[ idx ].GetMaximum()*0.38, 
-                    constants.upperCollimatorTextFreq2, cloneHistList[ idx ].GetMaximum()*0.52 );
-            style.setCollimatorAperture( pt, pt2 )
+            pt, pt2 = style.setCollimatorAperturePaveText( cloneHistList[ idx ].GetMaximum()*0.38, cloneHistList[ idx ].GetMaximum()*0.52, 'frequency' )
    
             #== Draw it all ==#
             cloneHistList[ idx ].Draw()
@@ -140,12 +131,12 @@ def optimizationLoop( t0Step, t0Array, minDelta, minDeltaAbs ):
    
             #== Save plot if option provided ==#
             if ( idx == 0 and printPlot == 1 ):
-                c.Print('plots/eps/'+ tag + '/Cosine_t0_{0:.4f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
-                c.Print('plots/eps/'+ tag + '/Cosine_t0Optimization_tS_{0}_tM_{1}.gif+10'.format(tS, tM))
+                c.Print('plots/eps/'+ tag + '/Cosine_t0_{0:.3f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+                c.Print('plots/eps/'+ tag + '/Cosine_t0Optimization_tS_{0}_tM_{1}.gif+5'.format(tS, tM))
     
             #== Save plot if option provided and if sine transform was performed ==#
             if ( idx == 1 and printPlot == 1 and runSine == 1 ):
-                c.Print('plots/eps/' + tag + '/Sine_t0_{0:.4f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
+                c.Print('plots/eps/' + tag + '/Sine_t0_{0:.3f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
 
 
 
@@ -167,10 +158,12 @@ fit     = np.polyfit(t0Array,minDelta,1)
 fit_fn  = np.poly1d(fit)
 optt0   = -fit_fn.c[1]/fit_fn.c[0]
 
-print ' First  optimization done, t0 = ' + '{0:.2f}'.format(optt0) +  ' ns'
+print ( ' First  optimization done, t0 = ' + '{0:.2f}'.format(optt0) +  ' ns' )
 
 #== Plot the optimization results ==#
 plt.plot( t0Array, minDelta, 'ro', t0Array, fit_fn(t0Array), 'k')
+ax = plt.gca()
+ax.set_xlim( t0Array[0]-0.1, t0Array[ len(t0Array) - 1 ]+0.1 )
 plt.ylabel('F.O.M.')
 plt.xlabel('$\mathregular{t_{0}}$ [ns]')
 plt.savefig('plots/eps/' + tag + '/t0Opt_coarse_fit_tS_{0}_tM_{1}.eps'.format(tS, tM))
@@ -178,6 +171,8 @@ plt.close()
 
 #== Plot the optimization results ==#
 plt.plot(t0Array, minDeltaAbs, 'rx', label='data')
+ax = plt.gca()
+ax.set_xlim( t0Array[0]-0.1, t0Array[ len(t0Array) - 1 ]+0.1 )
 plt.ylabel('F.O.M.')
 plt.xlabel('$\mathregular{t_{0}}$ [ns]')
 plt.savefig('plots/eps/' + tag + '/t0Opt_coarse_tS_{0}_tM_{1}.eps'.format(tS, tM))
@@ -207,7 +202,7 @@ if ( optLevel > 1 ):
     fit_fn = np.poly1d(fit)
     optt0 = -fit_fn.c[1]/fit_fn.c[0]
 
-    print ' Second optimization done, t0 = ' + '{0:.2f}'.format(optt0) +  ' ns'
+    print ( ' Second optimization done, t0 = ' + '{0:.2f}'.format(optt0) +  ' ns' )
 
     #== Plot the optimization results ==#
     plt.plot(t0ArrayFine, minDeltaFine, 'ro', t0ArrayFine, fit_fn(t0ArrayFine), 'k')
@@ -229,6 +224,8 @@ if ( optLevel > 1 ):
 
 #== Plotting the results from the different steps ==#
 plt.plot(t0Array, minDelta, 'ro', label='data')
+ax = plt.gca()
+ax.set_xlim( t0Array[0]-0.1, t0Array[ len(t0Array) - 1 ]+0.1 )
 plt.ylabel('F.O.M.')
 plt.xlabel('$\mathregular{t_{0}}$ [$\mathregular{\mu}$s]')
 plt.savefig('plots/eps/' + tag + '/t0Opt_tS_{0}_tM_{1}.eps'.format(tS, tM))

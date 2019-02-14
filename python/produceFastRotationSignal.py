@@ -26,11 +26,11 @@ dataType        = str   (sys.argv[13])
 nFitParam       = int   (sys.argv[14])
 produceFRS      = int   (sys.argv[15])
 
-print ''
-print ' =================================='
-print ' == Produce Fast Rotation signal =='
-print ' =================================='
-print ''
+print ( '' )
+print ( ' ==================================' )
+print ( ' == Produce Fast Rotation signal ==' )
+print ( ' ==================================' )
+print ( '' )
 
 #== Retrieve histogram from input ROOT file ==#
 
@@ -45,8 +45,8 @@ outFile = r.TFile( outputRootFile, 'RECREATE' )
 
 c = r.TCanvas('c','c',900,600)
 
-style.setCanvasStyle( c )
-style.setHistogramStyle( rawHist, '', 'Time [#mus]', 'Intensity')
+style.setTCanvasStyle( c )
+style.setTH1Style( rawHist, '', 'Time [#mus]', 'Intensity' )
 
 #== Allow or not statistical fluctuation of raw histogram ==#
 
@@ -67,7 +67,7 @@ if ( produceFRS != 1 ):
     if ( printPlot == 1 ):
         for time in times:
             plotting.plot( c, rawHist, tag+'/FRS', tS, tS+time )
-    print '\n--> Exting, Fast Rotation signal indicated by user to already exist\n'
+    print ('\n--> Exting, Fast Rotation signal indicated by user to already exist\n')
     sys.exit(0)
 
 
@@ -93,13 +93,13 @@ if ( nFitParam >= 5 ):
     wiggleFit = fiveParamFit
     cloneHist.Fit("fiveParamFit","REMQ")
     
-    print '\n=== 5-parameter fit ===\n'
-    print 'N0       ',   fiveParamFit.GetParameter(0)
-    print 'Tau_m    ',   fiveParamFit.GetParameter(1)
-    print 'Acos     ',   fiveParamFit.GetParameter(2)
-    print 'Asin     ',   fiveParamFit.GetParameter(4)
-    print 'Omega_a  ',   fiveParamFit.GetParameter(3)
-    print ''
+    print ('\n=== 5-parameter fit ===\n')
+    print ('N0       ',   fiveParamFit.GetParameter(0) )
+    print ('Tau_m    ',   fiveParamFit.GetParameter(1) )
+    print ('Acos     ',   fiveParamFit.GetParameter(2) )
+    print ('Asin     ',   fiveParamFit.GetParameter(4) )
+    print ('Omega_a  ',   fiveParamFit.GetParameter(3) )
+    print ('')
 
 #== 5-parameter + CBO wiggle fit ==#
 
@@ -124,17 +124,17 @@ if ( nFitParam >= 9 ):
     wiggleFit = nineParamFit
     cloneHist.Fit("nineParamFit","REMQ")
 
-    print '\n=== 9-parameter fit ===\n'
-    print 'N0       ',   nineParamFit.GetParameter(0)
-    print 'Tau_m    ',   nineParamFit.GetParameter(1)
-    print 'Acos     ',   nineParamFit.GetParameter(2)
-    print 'Asin     ',   nineParamFit.GetParameter(4)
-    print 'Omega_a  ',   nineParamFit.GetParameter(3)
-    print 'Tau_cbo  ',   nineParamFit.GetParameter(5)
-    print 'Acos_cbo ',   nineParamFit.GetParameter(6)
-    print 'Asin_cbo ',   nineParamFit.GetParameter(8)
-    print 'Omega_cbo',   nineParamFit.GetParameter(7)
-    print ''
+    print ('\n=== 9-parameter fit ===\n')
+    print ('N0       ',   nineParamFit.GetParameter(0) )
+    print ('Tau_m    ',   nineParamFit.GetParameter(1) )
+    print ('Acos     ',   nineParamFit.GetParameter(2) )
+    print ('Asin     ',   nineParamFit.GetParameter(4) )
+    print ('Omega_a  ',   nineParamFit.GetParameter(3) )
+    print ('Tau_cbo  ',   nineParamFit.GetParameter(5) )
+    print ('Acos_cbo ',   nineParamFit.GetParameter(6) )
+    print ('Asin_cbo ',   nineParamFit.GetParameter(8) )
+    print ('Omega_cbo',   nineParamFit.GetParameter(7) )
+    print ('')
 
 
 #== Plot and save wiggle plot ==#
@@ -166,7 +166,7 @@ if ( printPlot == 1 ):
 
 nBins = rawHist.GetXaxis().GetNbins()
 norm = r.TH1D( "norm", "norm", nBins, 0, rawHist.GetBinCenter( nBins ) + 0.5*rawHist.GetBinWidth(1) )
-style.setHistogramStyle( norm, '', 'Time [#mus]', 'Intensity')
+style.setTH1Style( norm, '', 'Time [#mus]', 'Intensity')
 
 for i in range(nBins):
     norm.SetBinContent( i, wiggleFit.Eval( norm.GetBinCenter(i) ) / rebinFactor )
