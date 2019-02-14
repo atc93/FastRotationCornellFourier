@@ -113,10 +113,11 @@ do
 done < "$outputTextFile"
 
 outputRootFile="root/${tag}_fourierAnalysis.root"
-outputTextFile="txt/{tag}_fourierAnalysis_tS.txt"
+outputTextFile="txt/${tag}_fourierAnalysis_tS.txt"
+outputDistFile="txt/${tag}_radialDistribution.txt"
     fieldIndex=0.108 #0.1185
      printPlot=1
-updateTextFile=1
+updateTextFile=0
        runSine=0
 
 python python/runFourierAnalysis.py\
@@ -133,7 +134,7 @@ python python/runFourierAnalysis.py\
     $tag\
     $updateTextFile\
     $runSine\
-    "test.txt"\
+    $outputDistFile\
     $dataType\
     $truthFile\
     -b
