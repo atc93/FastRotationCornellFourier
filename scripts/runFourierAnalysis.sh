@@ -39,7 +39,7 @@ outputRootFile="root/FRS_${tag}.root"
      printPlot=1 # 1 to print plots, 0 not to
       saveROOT=1 # 1 to save results in ROOT file, 0 not to
       statFluc=0 # 1 to enable statistical fluctuations, 0 not to
-     nFitParam=9 # either 5 or 9
+     nFitParam=5 # either 5 or 9
     produceFRS=1 # 1 to produce Fast Rotation signal, 0 if already exist    
 
 
@@ -76,12 +76,12 @@ outputTextFile="txt/${tag}_t0Opt.txt"
        lowert0=-327 # lower T0 boundary
        uppert0=-325 # upper T0 boundary
     t0StepSize=0.25 # T0 step size
-      optLevel=2 # 1 or 2 (1 is coarser and 2 is finer)
+      optLevel=1 # 1 or 2 (1 is coarser and 2 is finer)
             tS=4
             tM=400
      printPlot=1 # 1 to print plots, 0 not to
       saveROOT=1 # 1 to save results in ROOT file, 0 not to
-       runSine=0 # run the sine Fourier Transform alongside the Cosine
+       runSine=1 # run the sine Fourier Transform alongside the Cosine
 
 #== Run Python code to perform the T0 optimization ==#
 
@@ -119,7 +119,24 @@ outputTextFile="txt/{tag}_fourierAnalysis_tS.txt"
 updateTextFile=1
        runSine=0
 
-#python python/Data_fourierAnalysis.py  $inputRootFile $outputRootFile $outputTextFile $histoName $t0 $tS $tM $fieldIndex $printPlot $saveROOT $tag $updateTextFile $runSine "test.txt" $dataType $truthFile -b
+python python/runFourierAnalysis.py\
+    $inputRootFile\
+    $outputRootFile\
+    $outputTextFile\
+    $histoName\
+    $t0\
+    $tS\
+    $tM\
+    $fieldIndex\
+    $printPlot\
+    $saveROOT\
+    $tag\
+    $updateTextFile\
+    $runSine\
+    "test.txt"\
+    $dataType\
+    $truthFile\
+    -b
 
 echo ""
 date
