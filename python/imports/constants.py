@@ -12,7 +12,7 @@ magicE      = math.sqrt( math.pow( muonMass, 2 ) + math.pow( magicP, 2 ) ) # in 
 magicGamma  = magicE / muonMass # dimensionless
 magicBeta   = magicP / ( magicGamma * muonMass ) # dimensionless
 speedOfLight = 299792458 # in m/s
-magicFreq   = speedOfLight / ( 2 * math.pi * (magicR) ) # MHz
+magicFreq   = magicBeta*speedOfLight / ( 2 * math.pi * (magicR) ) # MHz
 
 #== For plotting purposes ==#
 

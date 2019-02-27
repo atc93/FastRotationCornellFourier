@@ -162,3 +162,21 @@ def setRadialResultsPaveText( eqRadius, std, CE, yMin, yMax ):
     pt.SetTextAngle(90);
 
     return pt
+
+#== Create and set TPaveText style to compare rec/truth-level mean frequencies ==#
+def setRecTruthFrequenciesPaveText( recFreq, trueFreq, yMin, yMax ):
+
+    pt = r.TPaveText( 6664, yMax, 6686, yMin);
+    pt.AddText('<reco freq> = ' + '{0:.2f}'.format(recFreq) + ' kHz');
+    pt.AddText('<true freq> = ' + '{0:.2f}'.format(trueFreq) + ' kHz');
+    pt.GetListOfLines().Last().SetTextColor(2)
+    pt.SetShadowColor(0);
+    pt.SetBorderSize(1);
+    pt.SetFillColor(0);
+    pt.SetLineWidth(1);
+    pt.SetLineColor(1);
+    pt.SetTextAngle(90);
+
+    return pt
+
+

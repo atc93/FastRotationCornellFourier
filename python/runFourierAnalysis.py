@@ -30,7 +30,8 @@ updateTextFile  = int   (sys.argv[12])
 runSine         = int   (sys.argv[13])
 outputDistFile  = str   (sys.argv[14])
 dataType        = str   (sys.argv[15])
-truthFileName   = str   (sys.argv[16])
+compareWithTruth= int   (sys.argv[16])
+truthFileName   = str   (sys.argv[17])
 
 print ( '')
 print ( ' ==============================' )
@@ -226,21 +227,54 @@ pt, pt2 = style.setCollimatorAperturePaveText( completeFreqDistHist.GetMaximum()
 listToDraw = [ completeFreqDistHist, innerLine, outerLine, pt, pt2, ]
 plotting.plotMultipleObjects( '', listToDraw )
 
-#---- NEED WORK ----#
-if ( dataType == "mc" or dataType == "bmad" ):
-    completeFreqDistHist.Scale(1/completeFreqDistHist.Integral())
+#== Compare radial and frequency distribution with truth level ones (if simulated data) ==#
+if ( compareWithTruth == 1 ):
+
+    #== Normalize the integral of the frequency distribution to 1 ==#
+    completeFreqDistHist.Scale( 1/completeFreqDistHist.Integral() )
+
+    #== Retrieve the truth level frequency distribution ==#
     truthFile = r.TFile( truthFileName )
     truth = truthFile.Get( "freq" )
-    truth.Rebin(2)
-    truth.Scale(1/truth.Integral())
-    style.setTH1Style( truth, '', 'Frequency [kHz]', 'Arbitrary units' )
-    completeFreqDistHist.Draw("hist")
-    truth.SetMarkerColor(4)
-    truth.SetMarkerStyle(20)
-    truth.SetMarkerSize(.7)
-    truth.Draw("samehistP")
-    print ( 'true freq: ', truth.GetMean() )
 
+    #== Rebin the truth level distribution if needed ==#
+    if ( constants.freqStep > truth.GetBinWidth(1) ):
+        truth.Rebin( int( constants.freqStep / truth.GetBinWidth(1) ) )
+
+    #== Normalize the integral of the frequency distribution to 1 ==#
+    truth.Scale( 1/truth.Integral() )
+
+    #== Restyle the reconstructed level frequency distribution ==#
+    style.setTH1Style( completeFreqDistHist, 'Truth/Reconstructed levels comparison', 'Frequency [kHz]', 'Arbitrary units' )
+
+    #== Limit the a-axis to the collimator aperture ==#
+    completeFreqDistHist.GetXaxis().SetRangeUser( constants.lowerCollimatorFreq, constants.upperCollimatorFreq )
+
+    #== Draw reconstructed level distribution ==#
+    completeFreqDistHist.Draw("hist")
+
+    #== Style the truth level distribution ==#
+    truth.SetMarkerColor(2)
+    truth.SetLineColor(2)
+    truth.SetLineStyle(1)
+    truth.SetLineWidth(1)
+    truth.SetMarkerStyle(20)
+    truth.SetMarkerSize(1.15)
+
+    #== Draw the markers of the truth level distribution ==#
+    truth.Draw("samehistP0")
+
+    #== Draw the line of the truth level distribution ==#
+    truth.Draw("samehist")
+
+    #== Define pave text to go display truth/reco level mean frequencies ==#
+    pt = style.setRecTruthFrequenciesPaveText( completeFreqDistHist.GetMean(), truth.GetMean(), 
+            completeFreqDistHist.GetMaximum()*1., completeFreqDistHist.GetMaximum()*0.8 )
+
+    #== Draw the TPaveText ==#
+    pt.Draw("same") 
+
+#== Draw TCanvas ==#
 c.Draw()   
 
 if ( printPlot == 1 ):
@@ -260,7 +294,7 @@ intensity, radius = array.array( 'd' ), array.array( 'd' )
 fourier.convertFreqToRadius( completeFreqDistHist, radius, intensity )
 
 #== Extract equilibirum radius (average radius) ==#
-eqRadius = np.average(radius, axis=0, weights=intensity)   
+eqRadius = util.computeRadialMean( radius, intensity )   
 
 #== Extract maximum intensity for normalization purpose ==#
 maxIntensity = np.amax(intensity)
@@ -308,9 +342,8 @@ resultsPaveText = style.setRadialResultsPaveText( eqRadius, std, CE, graphMax*0.
 listToDraw = [ graph, magicLine, innerLine, outerLine, pt, pt2, magicRadiusPaveText, resultsPaveText ]
 plotting.plotMultipleObjects( 'APL', listToDraw )
 
-"""
 #== Extract truth radial information if running on MC data ==#
-if ( dataType == "mc" ):
+if ( compareWithTruth == 1 ):
 
     #== Open truth ROOT file
     truthFile = r.TFile( truthFileName )
@@ -345,10 +378,10 @@ if ( dataType == "mc" ):
     truthSTD = util.computeRadialSTD( truthRadius, truthIntensity, truthEqRadius ) 
 
     pt5=r.TPaveText(7130, graphMax*0.7,7155, graphMax*0.96);
-    pt5.AddText('Toy Monte Carlo truth');
-    pt5.AddText('x_{e} = ' + '{0:.2f}'.format(eqRadius_t-7112) + ' mm');
-    pt5.AddText(' #sigma = ' + '{0:.2f}'.format(std_t) + ' mm');
-    pt5.AddText('      C_{E} = ' + '{0:.1f}'.format(C_E_reco) + ' ppb ');
+    pt5.AddText('Truth level');
+    pt5.AddText('x_{e} = ' + '{0:.1f}'.format(truthEqRadius-7112) + ' mm');
+    pt5.AddText(' #sigma = ' + '{0:.1f}'.format(truthSTD) + ' mm');
+#    pt5.AddText('      C_{E} = ' + '{0:.1f}'.format(C_E_reco) + ' ppb ');
     pt5.SetShadowColor(0);
     pt5.SetBorderSize(1);
     pt5.SetFillColor(0);
@@ -358,7 +391,6 @@ if ( dataType == "mc" ):
     pt5.SetTextAngle(90);
     pt5.Draw("same")
     graph.Draw("sameP")
-"""
 
 c.Draw()
 

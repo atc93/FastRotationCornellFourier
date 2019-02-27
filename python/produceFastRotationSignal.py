@@ -82,6 +82,16 @@ if ( printPlot == 1 ):
 cloneHist = rawHist.Clone()
 cloneHist.Rebin(rebinFactor)
 
+#== 2-parameter fit (exponential) ==#
+
+if ( nFitParam >= 2 ):
+
+    twoParamFit = r.TF1("twoParamFit", "[0]*exp(-x/[1])", startFitTime, endFitTime )
+    twoParamFit.SetParameters( cloneHist.GetBinContent( cloneHist.FindBin(startFitTime) )*1.3, 64.4 )
+
+    wiggleFit = twoParamFit
+    cloneHist.Fit("twoParamFit","REMQ")
+
 #== 5-parameter wiggle fit ==#
 
 if ( nFitParam >= 5 ):

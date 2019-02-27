@@ -21,7 +21,27 @@ def rootHistToNumpArray( hist, tS, tM ):
 
     return binCenter, binContent
 
-#== Compute Standard Deviation of an array ==#
+#== Compute Radial Mean within collimator aperture ==#
+def computeRadialMean( radius, intensity ):
+
+    mean = 0
+    sumI = 0
+
+    for x,y in zip( radius, intensity ):
+
+        #== Discard data point if radius outside of collimator aperture ==#
+        if ( x < constants.lowerCollimatorRad or x > constants.upperCollimatorRad ):
+            continue
+
+        #== Else compute the Mean ==#
+        mean += x*y
+        sumI += y
+
+    mean /= sumI
+
+    return mean
+
+#== Compute Radial Standard Deviation within collimator aperture ==#
 def computeRadialSTD( radius, intensity, meanRad ):
 
     std  = 0
