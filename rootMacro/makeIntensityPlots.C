@@ -1,6 +1,6 @@
 void makeIntensityPlots(int Eth, float dt) {
 
-    TFile file("root/60h.root");
+    TFile file("root/60h_gainsyst.root");
     TCanvas c;
     TTree* tree = (TTree*) file.Get("FastRotation/frTree");
 
@@ -58,7 +58,7 @@ void makeIntensityPlots(int Eth, float dt) {
         }
     }
 
-    TFile oFile( Form("root/IntensitySpectrum_60h_Eth_%d_dt_%.3f.root", Eth, dt), "RECREATE");
+    TFile oFile( Form("root/IntensitySpectrum_60h_gainsyst_Eth_%d_dt_%.3f.root", Eth, dt), "RECREATE");
 
     h_allCalosallBunches -> Write();
 

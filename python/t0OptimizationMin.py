@@ -132,7 +132,7 @@ def optimizationLoop( t0Step, t0Array, minDelta, minDeltaAbs ):
             #== Save plot if option provided ==#
             if ( idx == 0 and printPlot == 1 ):
                 c.Print('plots/eps/'+ tag + '/Cosine_t0_{0:.3f}_tS_{1}_tM_{2}.eps'.format(t0, tS, tM))
-                c.Print('plots/eps/'+ tag + '/Cosine_t0Optimization_tS_{0}_tM_{1}.gif+5'.format(tS, tM))
+                c.Print('plots/eps/'+ tag + '/Cosine_t0Optimization_tS_{0}_tM_{1}.gif+10'.format(tS, tM))
     
             #== Save plot if option provided and if sine transform was performed ==#
             if ( idx == 1 and printPlot == 1 and runSine == 1 ):
